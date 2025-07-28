@@ -1,29 +1,32 @@
-import logging
-from telegram.ext import Updater, CommandHandler
 from keepalive import keep_alive
+from telegram import Bot, Update
+from telegram.ext import Updater, CommandHandler, CallbackContext
+import logging
 import os
 
-# Set up logging
+# Telegram Bot Token
+TOKEN = "8092340392:AAHJN8d8mjQgHQeSAEyIYjEu0PesfQf0GH4"
+
+# Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Load token
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+# Start command handler
+def start(update: Update, context: CallbackContext):
+    update.message.reply_text("✅ UmarAlertBot is alive and running!")
 
-# Define a simple command handler
-def start(update, context):
-    update.message.reply_text("🚀 UmarAlertBot is alive and monitoring!")
-
+# Main function
 def main():
-    keep_alive()
+    keep_alive()  # Start Flask web server for Render
 
-    # Set up the updater and dispatcher
+    bot = Bot(token=TOKEN)
+    bot.set_webhook(url="https://parow01.onrender.com")  # Webhook URL for Render
+
     updater = Updater(token=TOKEN, use_context=True)
     dp = updater.dispatcher
 
-    # Add command handlers
     dp.add_handler(CommandHandler("start", start))
 
-    # Start the bot
     updater.start_polling()
     updater.idle()
 
