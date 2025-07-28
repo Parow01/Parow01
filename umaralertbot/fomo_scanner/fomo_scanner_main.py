@@ -1,3 +1,6 @@
+def start_fomo_scanner():
+    print("🟣 FOMO Scanner running...")
+
 # umaralertbot/fomo_scanner/fomo_scanner_main.py
 
 def detect_fomo_trades():
