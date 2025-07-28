@@ -1,3 +1,5 @@
+scheduler.add_job(send_whale_alert, "interval", minutes=10, timezone=pytz.utc)
+
 # whale_engine/whale_main.py
 
 import requests
