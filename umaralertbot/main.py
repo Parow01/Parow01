@@ -1,39 +1,32 @@
-import os
 import logging
-from flask import Flask, request
-import telegram
-from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Filters
-from config import TELEGRAM_TOKEN, WEBHOOK_URL
-
-# Initialize Flask app
-app = Flask(__name__)
+from telegram.ext import Updater, CommandHandler
+from keepalive import keep_alive
+import os
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Initialize Telegram Bot
-bot = telegram.Bot(token=TELEGRAM_TOKEN)
+# Load token
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-# Set up dispatcher
-dispatcher = Dispatcher(bot, None, use_context=True)
-
-# Simple command handler (you can expand later)
+# Define a simple command handler
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="👋 Hello! UmarAlertBot is active.")
+    update.message.reply_text("🚀 UmarAlertBot is alive and monitoring!")
 
-dispatcher.add_handler(CommandHandler("start", start))
+def main():
+    keep_alive()
 
-@app.route(f"/{TELEGRAM_TOKEN}", methods=["POST"])
-def webhook():
-    update = telegram.Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
-    return "OK", 200
+    # Set up the updater and dispatcher
+    updater = Updater(token=TOKEN, use_context=True)
+    dp = updater.dispatcher
 
-@app.route("/")
-def home():
-    return "🤖 UmarAlertBot is Live!", 200
+    # Add command handlers
+    dp.add_handler(CommandHandler("start", start))
 
-if __name__ == "__main__":
-    # Set webhook once when the app starts
-    bot.set_webhook(url=f"{WEBHOOK_URL}/{TELEGRAM_TOKEN}")
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    # Start the bot
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
+
