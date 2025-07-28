@@ -7,6 +7,8 @@ tornado==6.2
 tzlocal==5.3.1
 setuptools<81.0.0
 requests==2.31.0
+pytz
+
 
 
 
