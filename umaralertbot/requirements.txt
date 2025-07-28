@@ -1,11 +1,12 @@
 python-telegram-bot[webhooks]==20.0
-Flask>=3.0
+Flask==3.1.1
 APScheduler==3.6.3
+cachetools==4.2.2
+certifi==2025.7.14
+tornado==6.2
+tzlocal==5.3.1
 setuptools<81.0.0
-cachetools
-certifi
-tzlocal
-
+requests==2.31.0
 
 
 
