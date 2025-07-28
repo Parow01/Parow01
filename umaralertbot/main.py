@@ -1,38 +1,55 @@
-import asyncio
-import os
+from keepalive import keep_alive
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+import os
+import threading
+import asyncio
+
+from alert_engine.alert_main import start_alert_engine
+from fomo_scanner.fomo_main import start_fomo_scanner
 from whale_engine.whale_main import start_whale_engine
 from whale_screener.screener_main import start_whale_screener
-from fomo_scanner.fomo_main import start_fomo_scanner
-import threading
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8092340392:AAHJN8d8mjQgHQeSAEyIYjEu0PesfQf0GH4")
-WEBHOOK_URL = "https://parow01.onrender.com/webhook"
+BOT_TOKEN = os.environ.get("BOT_TOKEN") or "8092340392:AAHJN8d8mjQgHQeSAEyIYjEu0PesfQf0GH4"
+WEBHOOK_URL = "https://parow01.onrender.com/webhook"  # ✅ Correct route
 
+# --- Telegram Command Handler ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ Parownewbot is online!")
+    await update.message.reply_text("✅ Parownewbot is live and running!")
 
-def run_background_tasks():
-    threading.Thread(target=start_whale_engine).start()
-    threading.Thread(target=start_whale_screener).start()
-    threading.Thread(target=start_fomo_scanner).start()
+# --- Background Tasks ---
+def run_background_jobs():
+    threading.Thread(target=start_alert_engine, daemon=True).start()
+    threading.Thread(target=start_fomo_scanner, daemon=True).start()
+    threading.Thread(target=start_whale_engine, daemon=True).start()
+    threading.Thread(target=start_whale_screener, daemon=True).start()
 
+# --- Main Bot Setup ---
 async def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
 
-    run_background_tasks()
+    # Start background jobs
+    run_background_jobs()
 
+    # Set webhook
+    await app.bot.set_webhook(url=WEBHOOK_URL)
+
+    # Start webhook listener
     await app.run_webhook(
         listen="0.0.0.0",
         port=8080,
         webhook_url=WEBHOOK_URL,
-        allowed_updates=Update.ALL_TYPES
     )
 
+# --- Entry Point ---
 if __name__ == "__main__":
-    asyncio.run(main())
+    keep_alive()
+
+    loop = asyncio.get_event_loop()
+    loop.create_task(main())
+    loop.run_forever()
+
 
 
 
