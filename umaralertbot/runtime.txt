@@ -1,4 +1,0 @@
-git add runtime.txt
-git commit -m "Set Python version to 3.11.8 for Render compatibility"
-git push
-
