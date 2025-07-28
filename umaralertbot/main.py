@@ -6,7 +6,6 @@ import threading
 from alert_engine.alert_main import start_alert_engine
 from fomo_scanner.fomo_main import start_fomo_scanner
 from whale_engine.whale_main import start_whale_engine
-from whale_screener.screener_main import start_whale_screener
 # Add more as needed...
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN") or "8092340392:AAHJN8d8mjQgHQeSAEyIYjEu0PesfQf0GH4"
