@@ -4,6 +4,12 @@ def start_whale_screener():
     print("✅ Whale Screener Engine is running...")
     # You can add your screener logic here
 
+# screener_main.py
+
+def start_whale_screener():
+    print("✅ Whale Screener Engine is running...")
+    # You can add your screener logic here
+
 # umaralertbot/whale_screener/whale_screener_main.py
 
 import logging
