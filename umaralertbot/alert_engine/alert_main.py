@@ -1,3 +1,6 @@
+def start_alert_engine():
+    print("🚨 Alert engine started.")
+
 import requests
 import os
 
