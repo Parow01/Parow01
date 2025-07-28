@@ -1,43 +1,32 @@
-scheduler.add_job(send_whale_alert, "interval", minutes=10, timezone=pytz.utc)
-
-# whale_engine/whale_main.py
-
-import requests
-import logging
 from apscheduler.schedulers.background import BackgroundScheduler
-from telegram import Bot
-
-# Your Telegram bot token and chat ID
-BOT_TOKEN = "8092340392:AAHJN8d8mjQgHQeSAEyIYjEu0PesfQf0GH4"
-CHAT_ID = "-1002078661647"
-
-bot = Bot(token=BOT_TOKEN)
+from apscheduler.triggers.interval import IntervalTrigger
+from datetime import datetime
+import pytz
+import time
 
 def send_whale_alert():
-    try:
-        # Simulated data (replace this with real API call if needed)
-        alert_data = {
-            "symbol": "ETH",
-            "amount": "4,000 ETH",
-            "exchange": "Binance",
-            "direction": "Deposit"
-        }
-
-        message = (
-            f"🟡 Whale Alert Detected!\n\n"
-            f"Token: {alert_data['symbol']}\n"
-            f"Amount: {alert_data['amount']}\n"
-            f"Exchange: {alert_data['exchange']}\n"
-            f"Direction: {alert_data['direction']}"
-        )
-
-        bot.send_message(chat_id=CHAT_ID, text=message)
-
-    except Exception as e:
-        logging.error(f"[Whale Alert] Failed to send alert: {e}")
+    print("🐋 Sending whale alert...")
 
 def start_whale_engine():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(send_whale_alert, "interval", minutes=10)
+    print("✅ Whale Engine starting...")
+
+    scheduler = BackgroundScheduler(timezone=pytz.utc)
+
+    scheduler.add_job(
+        send_whale_alert,
+        trigger=IntervalTrigger(minutes=10),
+        next_run_time=datetime.now(pytz.utc),
+        id='whale_alert_job',
+        replace_existing=True
+    )
+
     scheduler.start()
-    logging.info("[Whale Engine] Running every 10 minutes.")
+    print("✅ Whale Engine scheduler started.")
+
+    try:
+        while True:
+            time.sleep(60)
+    except (KeyboardInterrupt, SystemExit):
+        scheduler.shutdown()
+        print("❌ Whale Engine stopped.")
+
