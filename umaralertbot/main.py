@@ -15,7 +15,7 @@ WEBHOOK_URL = "https://parow01.onrender.com"
 
 # ✅ Telegram /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ UmarAlertBot is live and running!")
+    await update.message.reply_text("✅ Parownewbot is live and running!")
 
 # ✅ Launch each background engine in its own thread
 def run_background_jobs():
