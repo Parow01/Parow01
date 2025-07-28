@@ -1,40 +1,35 @@
-# parownewbot/main.py
-
+import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-import logging
+from keepalive import keep_alive
+from apscheduler.schedulers.background import BackgroundScheduler
+from whale_engine.whale_main import start_whale_engine
+from dotenv import load_dotenv
 
-BOT_TOKEN = "8092340392:AAHJN8d8mjQgHQeSAEyIYjEu0PesfQf0GH4"
+load_dotenv()
 
-# ✅ Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+WEBHOOK_URL = "https://parow01.onrender.com/webhook"
 
-# ✅ Define /start command
+app = ApplicationBuilder().token(BOT_TOKEN).build()
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 Welcome! Parownewbot is live and responding.")
 
-# ✅ Define /help command (optional)
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("ℹ️ Available commands:\n/start - Launch bot\n/help - Show this message")
+app.add_handler(CommandHandler("start", start))
 
-# ✅ Start the bot
-if __name__ == "__main__":
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+scheduler = BackgroundScheduler()
+start_whale_engine(scheduler)
+scheduler.start()
 
-    # Add command handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
+keep_alive()
 
-    # Run webhook
-    application.run_webhook(
-        listen="0.0.0.0",
-        port=8080,
-        webhook_url="https://parow01.onrender.com/webhook"
-    )
-
+app.run_webhook(
+    listen="0.0.0.0",
+    port=8080,
+    webhook_url=WEBHOOK_URL,
+    allowed_updates=Update.ALL_TYPES
+)
 
 
 
