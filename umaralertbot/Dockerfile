@@ -1,17 +1,19 @@
-# Use official Python 3.11 image
-FROM python:3.11
+# Dockerfile
 
-# Set working directory
+# Use official Python 3.11 as base
+FROM python:3.11-slim
+
 WORKDIR /app
 
-# Copy files
+# Copy bot files
 COPY . .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port (for keepalive)
+# Web port for keepalive (optional)
 EXPOSE 8080
 
-# Run the app
+# Run the bot
 CMD ["python", "main.py"]
+
