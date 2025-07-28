@@ -1,3 +1,6 @@
+def start_whale_engine():
+    ...
+    
 # umaralertbot/whale_engine/whale_main.py
 
 from datetime import datetime
