@@ -1,35 +1,28 @@
 from keepalive import keep_alive
 from telegram import Bot, Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
-import logging
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+
 import os
 
-# Telegram Bot Token
-TOKEN = "8092340392:AAHJN8d8mjQgHQeSAEyIYjEu0PesfQf0GH4"
+BOT_TOKEN = "8092340392:AAHJN8d8mjQgHQeSAEyIYjEu0PesfQf0GH4"
+WEBHOOK_URL = "https://parow01.onrender.com"  # ← Matches Render URL
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Welcome to UmarAlertBot! ✅")
 
-# Start command handler
-def start(update: Update, context: CallbackContext):
-    update.message.reply_text("✅ UmarAlertBot is alive and running!")
-
-# Main function
 def main():
-    keep_alive()  # Start Flask web server for Render
+    keep_alive()
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    bot = Bot(token=TOKEN)
-    bot.set_webhook(url="https://parow01.onrender.com")  # Webhook URL for Render
+    app.add_handler(CommandHandler("start", start))
 
-    updater = Updater(token=TOKEN, use_context=True)
-    dp = updater.dispatcher
-
-    dp.add_handler(CommandHandler("start", start))
-
-    updater.start_polling()
-    updater.idle()
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=8080,
+        webhook_url=f"{WEBHOOK_URL}/webhook"
+    )
 
 if __name__ == '__main__':
     main()
+
 
