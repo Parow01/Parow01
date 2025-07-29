@@ -1,5 +1,3 @@
-# ✅ umaralertbot/fomo_scanner/fomo_main.py
-
 import logging
 from fomo_scanner.fomo_core import fetch_and_process_fomo_data
 
@@ -12,6 +10,6 @@ def start_fomo_scanner(scheduler):
             id='fomo_scanner_job',
             replace_existing=True
         )
-        logging.info("✅ Fomo Scanner engine scheduled successfully.")
+        logging.info("✅ FOMO Scanner engine scheduled successfully.")
     except Exception as e:
-        logging.error(f"❌ Failed to start Fomo Scanner: {e}")
+        logging.error(f"❌ Failed to start fomo_scanner: {e}")
