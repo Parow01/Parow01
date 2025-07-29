@@ -1,15 +1,13 @@
-import threading
-import time
+# fomo_scanner/fomo_core.py
 
-def fomo_scanner_loop():
-    while True:
-        try:
-            print("🔍 FOMO Scanner is running...")
-            time.sleep(30)
-        except Exception as e:
-            print(f"FOMO Scanner error: {e}")
-            time.sleep(10)
+import logging
 
-def start_fomo_scanner():
-    thread = threading.Thread(target=fomo_scanner_loop, daemon=True)
-    thread.start()
+def fetch_fomo_signals():
+    try:
+        # Example logic - replace with real FOMO detection logic
+        logging.info("🚀 Scanning for FOMO signals...")
+        # Simulate detection
+        print("🔍 Detected FOMO: $TOKEN is trending!")
+        # You can integrate Telegram sending logic here
+    except Exception as e:
+        logging.error(f"❌ Error in FOMO Scanner: {e}")
