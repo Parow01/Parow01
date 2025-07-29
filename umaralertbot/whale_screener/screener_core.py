@@ -1,6 +1,8 @@
+# ✅ umaralertbot/whale_screener/whale_core.py
+
+import requests
 import logging
 import os
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,7 +10,7 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-def send_telegram_alert(message):
+def send_whale_alert(message):
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {
@@ -18,28 +20,31 @@ def send_telegram_alert(message):
         }
         response = requests.post(url, data=payload)
         response.raise_for_status()
-        logging.info("✅ Whale Screener alert sent.")
+        logging.info("✅ Whale alert sent.")
     except Exception as e:
-        logging.error(f"❌ Failed to send Whale Screener alert: {e}")
+        logging.error(f"❌ Failed to send whale alert: {e}")
 
-def fetch_and_process_screener_data():
+
+def fetch_and_process_whale_data():
+    """
+    Blueprint Logic: Track wallet flows from tagged whales, institutions, or smart lists.
+    """
     try:
-        # Simulated screener logic (replace with real logic later)
-        logging.info("🔍 Whale Screener running...")
+        logging.info("🐋 Whale screener running...")
 
-        # Example mock result
+        # Simulated data — replace with real tagged wallet flows from Arkham/DEX Screener
         alert_msg = (
-            "<b>🚨 Whale Screener Alert</b>\n\n"
-            "Detected suspicious whale behavior on Binance:\n"
-            "🪙 <b>Asset:</b> ETH\n"
-            "💰 <b>Amount:</b> 8,000 ETH\n"
-            "📦 <b>Type:</b> Wallet → Exchange\n"
-            "⏰ <b>Time:</b> Now"
+            "<b>🐋 Whale Screener Alert</b>\n\n"
+            "💼 <b>Wallet:</b> 0xABC...123 (Smart Money)\n"
+            "🪙 <b>Token:</b> $LINK\n"
+            "📦 <b>Action:</b> Accumulated $980K on Binance\n"
+            "⏱️ <b>Time:</b> Last 6 mins\n"
+            "🔎 <i>Wallet flagged as Smart Money — Watch further behavior.</i>"
         )
 
-        send_telegram_alert(alert_msg)
+        send_whale_alert(alert_msg)
 
     except Exception as e:
-        logging.error(f"❌ Error in whale_screener core: {e}")
+        logging.error(f"❌ Error in whale screener: {e}")
 
 
