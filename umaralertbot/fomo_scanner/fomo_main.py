@@ -1,13 +1,12 @@
-# fomo_scanner/fomo_core.py
+# fomo_scanner/fomo_main.py
 
 import logging
+from apscheduler.schedulers.background import BackgroundScheduler
+from fomo_scanner.fomo_core import fetch_fomo_signals
 
-def fetch_fomo_signals():
+def start_fomo_scanner(scheduler: BackgroundScheduler):
     try:
-        # Example logic - replace with real FOMO detection logic
-        logging.info("🚀 Scanning for FOMO signals...")
-        # Simulate detection
-        print("🔍 Detected FOMO: $TOKEN is trending!")
-        # You can integrate Telegram sending logic here
+        scheduler.add_job(fetch_fomo_signals, "interval", minutes=5, id="fomo_scanner_job", replace_existing=True)
+        logging.info("✅ FOMO Scanner scheduled successfully.")
     except Exception as e:
-        logging.error(f"❌ Error in FOMO Scanner: {e}")
+        logging.error(f"❌ Failed to schedule FOMO Scanner: {e}")
