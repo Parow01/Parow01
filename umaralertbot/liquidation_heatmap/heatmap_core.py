@@ -39,3 +39,15 @@ def run_liquidation_job():
 
     except Exception as e:
         logging.error(f"❌ Error in liquidation heatmap: {e}")
+        # ✅ umaralertbot/liquidation_heatmap/heatmap_core.py
+
+def check_liquidation_clusters():
+    """
+    Simulated liquidation heatmap check. Replace with real implementation later.
+    """
+    return {
+        "type": "liquidation_heatmap",
+        "alert": "💥 Liquidation Cluster Detected near $28,500 BTC!",
+        "level": "critical"
+    }
+
