@@ -7,8 +7,8 @@ import time
 def send_whale_alert():
     print("🐋 Sending whale alert...")
 
-def start_whale_engine():
-    print("✅ Whale Engine starting...")
+def start_whale_engine(scheduler):
+    scheduler.add_job(fetch_and_process_whales, 'interval', seconds=60)
 
     scheduler = BackgroundScheduler(timezone=pytz.utc)
 
