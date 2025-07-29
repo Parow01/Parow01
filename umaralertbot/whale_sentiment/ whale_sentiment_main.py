@@ -1,23 +1,13 @@
-# umaralertbot/whale_sentiment/whale_sentiment_main.py
+import time
+from whale_sentiment.sentiment_core import get_whale_sentiment
+from alert_manager.alert_dispatcher import send_telegram_alert
 
-import logging
-
-logger = logging.getLogger(__name__)
-
-def analyze_whale_sentiment(whale_data: list) -> str:
-    """
-    Analyze sentiment from whale activity.
-    Example: If more inflows to exchanges → bearish, more outflows → bullish.
-    """
-    inflows = sum(1 for tx in whale_data if tx.get("type") == "inflow")
-    outflows = sum(1 for tx in whale_data if tx.get("type") == "outflow")
-
-    if inflows > outflows:
-        sentiment = "Bearish whale sentiment detected (exchanges receiving more inflow)."
-    elif outflows > inflows:
-        sentiment = "Bullish whale sentiment detected (more outflows from exchanges)."
-    else:
-        sentiment = "Neutral whale sentiment."
-
-    logger.info(f"Whale Sentiment Result: {sentiment}")
-    return sentiment
+def start_whale_sentiment_monitor():
+    while True:
+        try:
+            alert = get_whale_sentiment()
+            if alert:
+                send_telegram_alert(alert)
+        except Exception as e:
+            print(f"[Whale Sentiment Error] {e}")
+        time.sleep(180)  # Adjust delay for API usage limits
