@@ -1,3 +1,15 @@
+# ✅ umaralertbot/fomo_scanner/fomo_core.py
+
+def scan_fomo_trades():
+    """
+    Simulated FOMO logic. Replace with real implementation later.
+    """
+    return {
+        "type": "fomo_scanner",
+        "alert": "🚨 FOMO Spike: Token XYZ jumped 12% in 5 minutes!",
+        "direction": "bullish"
+    }
+
 import logging
 import os
 import requests
