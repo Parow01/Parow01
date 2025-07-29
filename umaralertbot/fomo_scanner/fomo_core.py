@@ -1,8 +1,8 @@
 # ✅ umaralertbot/fomo_scanner/fomo_core.py
 
+import requests
 import logging
 import os
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,34 +24,28 @@ def send_fomo_alert(message):
     except Exception as e:
         logging.error(f"❌ Failed to send FOMO alert: {e}")
 
-def scan_fomo_trades():
+
+def fetch_and_process_fomo_data():
     """
-    Main FOMO scanning logic. Called by main.py
+    Blueprint Logic: Scan for sudden wallet-based buying spikes or memecoin pumps.
     """
     try:
-        logging.info("🔍 FOMO Scanner running...")
+        logging.info("🚀 FOMO scanner running...")
 
-        # Simulated FOMO alert — replace with real data logic later
+        # Simulated spike — Replace with live scanner later using Smart Money tags + volume
         alert_msg = (
             "<b>🚨 FOMO Scanner Alert</b>\n\n"
-            "Sudden buying activity detected:\n"
-            "🪙 <b>Token:</b> PEPE\n"
-            "📈 <b>Spike:</b> 12 wallets bought in 2 min\n"
-            "🕵️ <b>New Wallets:</b> 87% are newly funded"
+            "💹 <b>Token:</b> $PEPE\n"
+            "📈 <b>Spike:</b> 17 wallets bought in 2 mins\n"
+            "🧠 <b>New Wallets:</b> 91% are new or tagged FOMO\n"
+            "💰 <b>Volume:</b> $430K in 3 min\n"
+            "⚠️ <i>Likely speculative pump in progress</i>"
         )
 
         send_fomo_alert(alert_msg)
 
-        # Return structure used by confluence or dispatchers
-        return {
-            "type": "fomo_scanner",
-            "alert": "🚨 FOMO Spike: Token PEPE jumped 12% in 2 minutes!",
-            "direction": "bullish"
-        }
-
     except Exception as e:
         logging.error(f"❌ Error in FOMO scanner: {e}")
-        return None
 
 
 
