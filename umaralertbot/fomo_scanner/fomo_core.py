@@ -1,22 +1,21 @@
-# fomo_scanner/fomo_core.py
+# ✅ umaralertbot/fomo_scanner/fomo_core.py
 
 import logging
+import random
 
-def fetch_fomo_signals():
+def fetch_and_process_fomo_data():
     try:
-        # 🔍 Placeholder logic — replace with real API or detection logic
-        logging.info("🚨 Fetching FOMO signals...")
+        logging.info("🚀 [FOMO Scanner] Fetching and processing FOMO data...")
 
-        # Example mock alert (replace with actual logic later)
-        fomo_alert = {
-            "symbol": "BTC",
-            "price": 63750,
-            "volume_change": "↑ 43%",
-            "reason": "Sudden price + volume spike"
-        }
+        fake_tokens = ['PEPE', 'BONK', 'DOGE', 'WIF', 'SHIBA', 'FLOKI']
+        selected = random.choice(fake_tokens)
+        pump_percent = random.uniform(15, 80)
 
-        logging.info(f"📢 FOMO Signal: {fomo_alert['symbol']} at ${fomo_alert['price']} ({fomo_alert['volume_change']}) — {fomo_alert['reason']}")
-    
+        logging.info(f"🔥 [FOMO Alert] {selected} is pumping {pump_percent:.2f}% in 1h!")
+
+        # TODO: send_telegram_alert(...) here later
+
     except Exception as e:
-        logging.error(f"❌ Error in fetch_fomo_signals: {e}")
+        logging.error(f"❌ [FOMO Scanner] Failed to process FOMO data: {e}")
+
 
