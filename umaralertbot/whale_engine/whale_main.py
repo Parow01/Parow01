@@ -1,3 +1,5 @@
+from parownewbot.whale_engine.whale_core import fetch_and_process_whales
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime
