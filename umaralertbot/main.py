@@ -1,5 +1,3 @@
-# main.py
-
 import os
 import logging
 from dotenv import load_dotenv
@@ -9,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import pytz
 
 from whale_engine.whale_main import start_whale_engine
-# Add more imports here for other modules if needed
+from message_router.router import process_update  # ✅ your Telegram logic
 
 # Load environment variables
 load_dotenv()
@@ -31,7 +29,11 @@ def home():
 
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    # Add your Telegram handler logic here
+    try:
+        update = request.get_json()
+        process_update(update)  # ✅ handle incoming Telegram update
+    except Exception as e:
+        logging.error(f"❌ Error in webhook: {e}")
     return {"ok": True}
 
 # Scheduler setup
@@ -42,7 +44,8 @@ scheduler.start()
 start_whale_engine(scheduler)
 
 # Keep app alive
-keep_alive()
+keep_alive(app)  # ✅ pass app to keep_alive
+
 
 
 
