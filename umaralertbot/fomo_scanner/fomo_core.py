@@ -1,21 +1,44 @@
-# ✅ umaralertbot/fomo_scanner/fomo_core.py
-
 import logging
-import random
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
+def send_fomo_alert(message):
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": CHAT_ID,
+            "text": message,
+            "parse_mode": "HTML"
+        }
+        response = requests.post(url, data=payload)
+        response.raise_for_status()
+        logging.info("✅ FOMO alert sent.")
+    except Exception as e:
+        logging.error(f"❌ Failed to send FOMO alert: {e}")
 
 def fetch_and_process_fomo_data():
     try:
-        logging.info("🚀 [FOMO Scanner] Fetching and processing FOMO data...")
+        logging.info("🔍 FOMO Scanner running...")
 
-        fake_tokens = ['PEPE', 'BONK', 'DOGE', 'WIF', 'SHIBA', 'FLOKI']
-        selected = random.choice(fake_tokens)
-        pump_percent = random.uniform(15, 80)
+        # Simulated logic — replace with real checks later
+        alert_msg = (
+            "<b>🚨 FOMO Scanner Alert</b>\n\n"
+            "Sudden buying activity detected:\n"
+            "🪙 <b>Token:</b> PEPE\n"
+            "📈 <b>Spike:</b> 12 wallets bought in 2 min\n"
+            "🕵️ <b>New Wallets:</b> 87% are newly funded"
+        )
 
-        logging.info(f"🔥 [FOMO Alert] {selected} is pumping {pump_percent:.2f}% in 1h!")
-
-        # TODO: send_telegram_alert(...) here later
+        send_fomo_alert(alert_msg)
 
     except Exception as e:
-        logging.error(f"❌ [FOMO Scanner] Failed to process FOMO data: {e}")
+        logging.error(f"❌ Error in FOMO scanner: {e}")
+
 
 
