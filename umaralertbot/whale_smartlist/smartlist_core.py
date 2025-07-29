@@ -1,30 +1,23 @@
-# ✅ umaralertbot/whale_smartlist/smartlist_core.py
-
 import random
 
-# Simulated Smartlist (you'll upgrade later with Arkham/Lookonchain)
-SMARTLIST = {
-    "0xAlpha123": {"score": 0.78, "tag": "ETH Accumulator"},
-    "0xWhale456": {"score": 0.81, "tag": "BTC Dip Buyer"},
-    "0xQuiet789": {"score": 0.91, "tag": "Smart Layer 2 Player"}
+WATCHLIST = {
+    "SmartWhale01": "0xF977814e90dA44bFA03b6295A0616a897441aceC",
+    "ArkhamWhale77": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
 }
 
-def get_smart_whales():
-    """Returns the current Smartlist of reliable whales"""
-    return SMARTLIST
+def monitor_smartlist() -> dict | None:
+    # Simulate some random "detected" events (replace with actual logic later)
+    whale_name = random.choice(list(WATCHLIST.keys()))
+    direction = random.choice(["deposit", "withdrawal"])
+    amount = random.choice([500000, 1200000, 3000000])
 
-def detect_whale_activity() -> dict | None:
-    """
-    Simulates detection of a whale transaction from the Smartlist.
-    To be replaced with Arkham/Lookonchain later.
-    """
-    whale = random.choice(list(SMARTLIST.items()))
-    address, info = whale
-
-    if info["score"] >= 0.70:
+    if amount >= 1000000:
+        alert_msg = f"🐋 {whale_name} made a {direction.upper()} of ${amount:,}!"
         return {
-            "type": "whale_tx",
-            "address": address,
-            "alert": f"🧠 Smart Whale ({info['tag']}) just made a move.\nConfidence: {int(info['score']*100)}%",
+            "type": "smartlist",
+            "alert": alert_msg,
+            "confidence": "high"
         }
+
     return None
+
