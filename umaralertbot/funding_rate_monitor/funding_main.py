@@ -1,7 +1,6 @@
 # ✅ umaralertbot/funding_rate_monitor/funding_main.py
 
 import logging
-from funding_rate_monitor.funding_rate_monitor_main import monitor_funding_rates
 
 def run_funding_rate_check():
     try:
