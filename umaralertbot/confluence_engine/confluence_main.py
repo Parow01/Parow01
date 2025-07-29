@@ -1,58 +1,64 @@
-# ✅ umaralertbot/confluence_engine/confluence_main.py
-
 import logging
-from confluence_engine.confluence_core import evaluate_confluence
-from alert_manager.dispatch import send_alert
-
-# Import core engines
-from whale_screener.screener_core import fetch_and_process_screener_data
+from apscheduler.schedulers.background import BackgroundScheduler
+from whale_screener.whale_core import detect_whale_activity
 from fomo_scanner.fomo_core import scan_fomo_trades
+from funding_rate_monitor.funding_core import analyze_funding_rates
 from liquidation_heatmap.heatmap_core import check_liquidation_clusters
-from funding_rate_monitor.funding_rate_monitor_main import monitor_funding_rates
-from netflow_reaction.netflow_core import analyze_netflow
-from whale_smartlist.smartlist_core import detect_whale_activity
-from hotwallet_monitor.hotwallet_core import get_hotwallet_activity
+from confluence_engine.confluence_utils import send_confluence_alert
 
-def run_confluence_engine():
+def check_confluence():
     try:
-        signals = []
+        logging.info("🔎 Checking for Confluence Signals...")
 
-        # Run each core engine manually and gather signals (if any)
-        for engine in [
-            fetch_and_process_screener_data,
-            scan_fomo_trades,
-            check_liquidation_clusters,
-            monitor_funding_rates,
-            analyze_netflow,
-            detect_whale_activity,
-            get_hotwallet_activity
-        ]:
-            result = engine()
-            if result:
-                signals.append(result)
+        whale_alert = detect_whale_activity()
+        fomo_alert = scan_fomo_trades()
+        funding_alert = analyze_funding_rates()
+        heatmap_alert = check_liquidation_clusters()
 
-        # Run confluence check
-        final_alert = evaluate_confluence(signals)
-        if final_alert:
-            send_alert(final_alert)
+        # Define signal logic (strict confluence logic)
+        bullish_signals = [
+            whale_alert.get("direction") == "bullish",
+            fomo_alert.get("direction") == "bullish",
+            funding_alert.get("direction") == "bullish",
+            heatmap_alert.get("direction") == "bullish",
+        ]
+        bearish_signals = [
+            whale_alert.get("direction") == "bearish",
+            fomo_alert.get("direction") == "bearish",
+            funding_alert.get("direction") == "bearish",
+            heatmap_alert.get("direction") == "bearish",
+        ]
 
-        logging.info("🧠 Confluence Engine checked successfully.")
+        if bullish_signals.count(True) >= 3:
+            message = (
+                "<b>📊 Smart Confluence Alert</b>\n\n"
+                "🔵 Bullish sentiment detected across multiple engines:\n"
+                f"{whale_alert['alert']}\n"
+                f"{fomo_alert['alert']}\n"
+                f"{funding_alert['alert']}\n"
+                f"{heatmap_alert['alert']}"
+            )
+            send_confluence_alert(message)
+
+        elif bearish_signals.count(True) >= 3:
+            message = (
+                "<b>📊 Smart Confluence Alert</b>\n\n"
+                "🔴 Bearish sentiment detected across multiple engines:\n"
+                f"{whale_alert['alert']}\n"
+                f"{fomo_alert['alert']}\n"
+                f"{funding_alert['alert']}\n"
+                f"{heatmap_alert['alert']}"
+            )
+            send_confluence_alert(message)
 
     except Exception as e:
-        logging.error(f"❌ Confluence Engine Error: {e}")
+        logging.error(f"❌ Error in confluence checker: {e}")
 
-def start_confluence_engine(scheduler):
-    try:
-        scheduler.add_job(
-            run_confluence_engine,
-            trigger='interval',
-            seconds=150,
-            id='confluence_engine_job',
-            replace_existing=True
-        )
-        logging.info("✅ Confluence Engine scheduled successfully.")
-    except Exception as e:
-        logging.error(f"❌ Failed to schedule Confluence Engine: {e}")
+def start_confluence_engine():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(check_confluence, "interval", minutes=4)
+    scheduler.start()
+    logging.info("✅ Confluence engine started.")
 
 
 
