@@ -1,15 +1,11 @@
-import logging
-from fomo_scanner.fomo_core import fetch_and_process_fomo_data
+# ✅ umaralertbot/fomo_scanner/fomo_main.py
 
-def start_fomo_scanner(scheduler):
-    try:
-        scheduler.add_job(
-            fetch_and_process_fomo_data,
-            trigger='interval',
-            seconds=60,
-            id='fomo_scanner_job',
-            replace_existing=True
-        )
-        logging.info("✅ FOMO Scanner engine scheduled successfully.")
-    except Exception as e:
-        logging.error(f"❌ Failed to start fomo_scanner: {e}")
+from apscheduler.schedulers.background import BackgroundScheduler
+from fomo_scanner.fomo_core import scan_fomo_trades
+import logging
+
+def start_fomo_scanner():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(scan_fomo_trades, 'interval', minutes=3)
+    scheduler.start()
+    logging.info("✅ FOMO Scanner scheduled to run every 3 minutes.")
