@@ -1,15 +1,5 @@
 # ✅ umaralertbot/fomo_scanner/fomo_core.py
 
-def scan_fomo_trades():
-    """
-    Simulated FOMO logic. Replace with real implementation later.
-    """
-    return {
-        "type": "fomo_scanner",
-        "alert": "🚨 FOMO Spike: Token XYZ jumped 12% in 5 minutes!",
-        "direction": "bullish"
-    }
-
 import logging
 import os
 import requests
@@ -34,11 +24,14 @@ def send_fomo_alert(message):
     except Exception as e:
         logging.error(f"❌ Failed to send FOMO alert: {e}")
 
-def fetch_and_process_fomo_data():
+def scan_fomo_trades():
+    """
+    Main FOMO scanning logic. Called by main.py
+    """
     try:
         logging.info("🔍 FOMO Scanner running...")
 
-        # Simulated logic — replace with real checks later
+        # Simulated FOMO alert — replace with real data logic later
         alert_msg = (
             "<b>🚨 FOMO Scanner Alert</b>\n\n"
             "Sudden buying activity detected:\n"
@@ -49,8 +42,16 @@ def fetch_and_process_fomo_data():
 
         send_fomo_alert(alert_msg)
 
+        # Return structure used by confluence or dispatchers
+        return {
+            "type": "fomo_scanner",
+            "alert": "🚨 FOMO Spike: Token PEPE jumped 12% in 2 minutes!",
+            "direction": "bullish"
+        }
+
     except Exception as e:
         logging.error(f"❌ Error in FOMO scanner: {e}")
+        return None
 
 
 
