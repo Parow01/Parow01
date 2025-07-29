@@ -1,31 +1,46 @@
-# umaralertbot/confluence_engine/confluence_main.py
+# ✅ umaralertbot/confluence_engine/confluence_main.py
 
 import logging
+from confluence_engine.confluence_main import ConfluenceSignalEngine
 
-class ConfluenceSignalEngine:
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
+# Dummy signal providers for now
+def get_dummy_token_flow_signal():
+    return "bullish"
 
-    def check_confluence_signal(self, token_flow_signal, netflow_signal, whale_signal):
-        """
-        Returns a confluence signal if at least two out of three signals match.
-        """
-        signals = [token_flow_signal, netflow_signal, whale_signal]
-        signal_counts = {"bullish": 0, "bearish": 0}
+def get_dummy_netflow_signal():
+    return "bullish"
 
-        for signal in signals:
-            if signal == "bullish":
-                signal_counts["bullish"] += 1
-            elif signal == "bearish":
-                signal_counts["bearish"] += 1
+def get_dummy_whale_signal():
+    return "bearish"
 
-        if signal_counts["bullish"] >= 2:
-            self.logger.info("Confluence bullish signal detected.")
-            return "bullish"
-        elif signal_counts["bearish"] >= 2:
-            self.logger.info("Confluence bearish signal detected.")
-            return "bearish"
-        else:
-            self.logger.info("No strong confluence detected.")
-            return "neutral"
+def run_confluence_analysis():
+    try:
+        engine = ConfluenceSignalEngine()
+
+        token_flow = get_dummy_token_flow_signal()
+        netflow = get_dummy_netflow_signal()
+        whale = get_dummy_whale_signal()
+
+        result = engine.check_confluence_signal(token_flow, netflow, whale)
+
+        logging.info(f"🔁 [Confluence Engine] Combined signal = {result.upper()}")
+
+        # In future: send_telegram_alert(f"📊 Confluence Signal: {result.upper()}")
+
+    except Exception as e:
+        logging.error(f"❌ [Confluence Engine Error] {e}")
+
+def start_confluence_engine(scheduler):
+    try:
+        scheduler.add_job(
+            run_confluence_analysis,
+            trigger='interval',
+            seconds=90,
+            id='confluence_engine_job',
+            replace_existing=True
+        )
+        logging.info("✅ Confluence Engine scheduled successfully.")
+    except Exception as e:
+        logging.error(f"❌ Failed to start Confluence Engine: {e}")
+
 
