@@ -1,6 +1,8 @@
+# ✅ umaralertbot/liquidation_heatmap/heatmap_core.py
+
+import requests
 import logging
 import os
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,7 +10,8 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-def send_liquidation_alert(message):
+
+def send_liquidation_alert(message: str):
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {
@@ -22,32 +25,47 @@ def send_liquidation_alert(message):
     except Exception as e:
         logging.error(f"❌ Failed to send liquidation alert: {e}")
 
-def run_liquidation_job():
-    try:
-        logging.info("🧯 Liquidation Heatmap running...")
-
-        # Mock logic: Replace with real data scraping/API
-        alert_msg = (
-            "<b>💥 Liquidation Alert</b>\n\n"
-            "Massive longs liquidated on Bybit:\n"
-            "📉 <b>Amount:</b> $38M\n"
-            "📊 <b>Type:</b> Longs\n"
-            "⏰ <b>Time:</b> Now"
-        )
-
-        send_liquidation_alert(alert_msg)
-
-    except Exception as e:
-        logging.error(f"❌ Error in liquidation heatmap: {e}")
-        # ✅ umaralertbot/liquidation_heatmap/heatmap_core.py
 
 def check_liquidation_clusters():
     """
-    Simulated liquidation heatmap check. Replace with real implementation later.
+    Core logic for detecting liquidation heatmap clusters across exchanges.
+    This uses free Coinglass liquidation data.
     """
-    return {
-        "type": "liquidation_heatmap",
-        "alert": "💥 Liquidation Cluster Detected near $28,500 BTC!",
-        "level": "critical"
-    }
+    try:
+        logging.info("📊 Checking liquidation heatmap...")
+
+        # Example free API from Coinglass (no key required)
+        url = "https://open-api.coinglass.com/public/v2/liquidation_order"
+        headers = {
+            "accept": "application/json",
+        }
+
+        response = requests.get(url, headers=headers)
+        data = response.json()
+
+        # Real alert logic: cluster detection
+        alerts = []
+
+        for item in data.get("data", []):
+            symbol = item.get("symbol")
+            long_usd = item.get("longVolUsd", 0)
+            short_usd = item.get("shortVolUsd", 0)
+
+            total = long_usd + short_usd
+            if total > 3_000_000:  # Customize this threshold in blueprint
+                alert_msg = (
+                    f"<b>🔥 Liquidation Cluster Alert</b>\n\n"
+                    f"🪙 <b>Pair:</b> {symbol}\n"
+                    f"💥 <b>Longs:</b> ${long_usd:,.0f}\n"
+                    f"💣 <b>Shorts:</b> ${short_usd:,.0f}\n"
+                    f"📊 <b>Total:</b> ${total:,.0f}\n\n"
+                    f"<i>Large liquidation cluster detected. Possible reversal or breakout area.</i>"
+                )
+                alerts.append(alert_msg)
+
+        for msg in alerts:
+            send_liquidation_alert(msg)
+
+    except Exception as e:
+        logging.error(f"❌ Error while scanning liquidation heatmap: {e}")
 
