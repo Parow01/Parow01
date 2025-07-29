@@ -1,45 +1,23 @@
-import logging
-import os
-import requests
-from dotenv import load_dotenv
+# ✅ umaralertbot/confluence_engine/confluence_core.py
 
-load_dotenv()
+def evaluate_confluence(signals: list) -> dict | None:
+    """
+    Evaluates a list of signals from different modules and determines if confluence is strong.
+    """
+    if not signals or len(signals) < 2:
+        return None  # Not enough signals for confluence
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+    types = [sig["type"] for sig in signals if "type" in sig]
 
-def send_telegram_alert(message):
-    try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        payload = {
-            "chat_id": CHAT_ID,
-            "text": message,
-            "parse_mode": "HTML"
+    # Simple logic: If 2+ distinct types occur close together → trigger confluence
+    unique_types = set(types)
+
+    if len(unique_types) >= 2:
+        alert_lines = [sig["alert"] for sig in signals if "alert" in sig]
+        return {
+            "type": "confluence",
+            "alert": "📊 Confluence Detected:\n\n" + "\n\n".join(alert_lines),
+            "confidence": "very high"
         }
-        response = requests.post(url, data=payload)
-        response.raise_for_status()
-        logging.info("✅ Confluence alert sent.")
-    except Exception as e:
-        logging.error(f"❌ Failed to send Confluence alert: {e}")
 
-def run_confluence_engine():
-    try:
-        logging.info("🔄 Confluence Engine running...")
-
-        # Simulated signals from other engines
-        whale_activity = True
-        liquidation_cluster = True
-        fomo_volume_spike = False
-
-        if whale_activity and liquidation_cluster:
-            message = (
-                "<b>📊 Confluence Signal Detected</b>\n\n"
-                "✅ Whale Transfer Detected\n"
-                "💥 Liquidation Cluster Confirmed\n"
-                "📉 Market Reaction Likely\n\n"
-                "This is a smart money trigger. Monitor closely. ⚠️"
-            )
-            send_telegram_alert(message)
-
-    except Exception as e:
-        logging.error(f"❌ Error in Confluence Engine: {e}")
+    return None
