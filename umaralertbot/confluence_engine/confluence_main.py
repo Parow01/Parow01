@@ -1,8 +1,6 @@
 # ✅ umaralertbot/confluence_engine/confluence_main.py
 
 import logging
-from confluence_engine.confluence_main import ConfluenceSignalEngine
-
 # Dummy signal providers for now
 def get_dummy_token_flow_signal():
     return "bullish"
