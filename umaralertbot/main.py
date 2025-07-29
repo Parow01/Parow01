@@ -1,3 +1,5 @@
+from whale_smartlist.smartlist_main import start_smartlist_engine
+
 import os
 import logging
 from flask import Flask, request
