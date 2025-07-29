@@ -1,30 +1,47 @@
-# ✅ umaralertbot/hotwallet_monitor/hotwallet_core.py
+import requests
 
-import random
-
-# Simulated database of exchange wallets
 EXCHANGE_WALLETS = {
-    "Binance": ["0xBinanceWallet1", "0xBinanceWallet2"],
-    "OKX": ["0xOKXWallet1"],
-    "Coinbase": ["0xCoinbaseWallet"]
+    "Binance": ["0x3f5CE5FBFe3E9af3971dD833D26BA9b5C936f0bE"],
+    "Coinbase": ["0x503828976D22510aad0201ac7EC88293211D23Da"],
+    "Kraken": ["0x0A869d79a7052C7f1b55a8ebabbea3420F0D1E13"]
 }
 
-def check_exchange_wallet_flows() -> dict | None:
-    """
-    Simulate detecting large inflows/outflows from exchange wallets.
-    In production, you'd replace this with on-chain API or scrape.
-    """
-    exchange = random.choice(list(EXCHANGE_WALLETS.keys()))
-    action = random.choice(["deposit", "withdrawal"])
-    amount = random.randint(10, 120)
+ETHERSCAN_API_KEY = "YourFreeEtherscanAPIKey"  # Replace with actual free key
 
-    if amount >= 50:
-        emoji = "🏦" if action == "deposit" else "🚪"
+def get_wallet_activity(wallet_address: str) -> list:
+    url = f"https://api.etherscan.io/api"
+    params = {
+        "module": "account",
+        "action": "txlist",
+        "address": wallet_address,
+        "startblock": 9999999 - 1000,
+        "endblock": 99999999,
+        "sort": "desc",
+        "apikey": ETHERSCAN_API_KEY
+    }
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        result = response.json()
+        if result["status"] == "1":
+            return result["result"]
+    except Exception:
+        pass
+    return []
+
+def detect_hotwallet_activity() -> dict | None:
+    alerts = []
+    for exchange, wallets in EXCHANGE_WALLETS.items():
+        for wallet in wallets:
+            txs = get_wallet_activity(wallet)
+            if txs:
+                recent_tx = txs[0]
+                value_eth = int(recent_tx["value"]) / 1e18
+                if value_eth > 1000:
+                    alerts.append(f"🔥 Large TX from {exchange}: {value_eth:.2f} ETH → {recent_tx['to']}")
+    if alerts:
         return {
-            "type": "exchange_wallet",
-            "alert": f"{emoji} ${amount}M {action.title()} on {exchange} Exchange Detected!",
-            "exchange": exchange,
-            "amount": amount
+            "type": "hotwallet",
+            "alert": "\n".join(alerts),
+            "confidence": "medium"
         }
-
     return None
