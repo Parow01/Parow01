@@ -1,16 +1,11 @@
-import logging
-from liquidation_heatmap.heatmap_core import run_liquidation_job
+# ✅ umaralertbot/liquidation_heatmap/heatmap_main.py
 
-def start_liquidation_heatmap(scheduler):
-    try:
-        scheduler.add_job(
-            run_liquidation_job,
-            trigger='interval',
-            seconds=90,
-            id='liquidation_heatmap_job',
-            replace_existing=True
-        )
-        logging.info("✅ Liquidation Heatmap engine scheduled successfully.")
-    except Exception as e:
-        logging.error(f"❌ Failed to start liquidation heatmap: {e}")
+from apscheduler.schedulers.background import BackgroundScheduler
+from liquidation_heatmap.heatmap_core import check_liquidation_clusters
+
+def start_liquidation_heatmap():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(check_liquidation_clusters, 'interval', minutes=5)
+    scheduler.start()
+
 
