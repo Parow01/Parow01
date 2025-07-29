@@ -1,10 +1,25 @@
-# umaralertbot/funding_rate_monitor/funding_rate_monitor_main.py
+# ✅ umaralertbot/funding_rate_monitor/funding_main.py
 
-def monitor_funding_rates():
-    print("Monitoring funding rates across perpetual futures markets...")
-    # Integrate with APIs like Binance, Bybit, or Coinglass to pull funding rates
-    # Logic: Alert when extreme positive/negative funding indicates trader bias
+import logging
+from funding_rate_monitor.funding_rate_monitor_main import monitor_funding_rates
 
-# Example usage
-if __name__ == "__main__":
-    monitor_funding_rates()
+def run_funding_rate_check():
+    try:
+        monitor_funding_rates()
+        logging.info("📡 [Funding Rate Monitor] Check complete.")
+    except Exception as e:
+        logging.error(f"❌ [Funding Rate Monitor Error] {e}")
+
+def start_funding_rate_monitor(scheduler):
+    try:
+        scheduler.add_job(
+            run_funding_rate_check,
+            trigger='interval',
+            seconds=120,
+            id='funding_rate_monitor_job',
+            replace_existing=True
+        )
+        logging.info("✅ Funding Rate Monitor scheduled successfully.")
+    except Exception as e:
+        logging.error(f"❌ Failed to start Funding Rate Monitor: {e}")
+
