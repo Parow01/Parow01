@@ -1,38 +1,29 @@
 # filter_core.py
 
-def passes_filter(alert: dict) -> bool:
+def apply_confluence_filters(signals: list[dict]) -> list[dict]:
     """
-    Filters alerts based on type, confidence level, and blueprint rules.
+    Apply confluence logic to incoming alerts.
+
+    A signal must meet at least 2 out of 3 filters to pass:
+    - Has confidence level
+    - Has direction (bullish or bearish)
+    - Comes from specific 'smart' modules
     """
-    alert_type = alert.get("type", "")
-    confidence = alert.get("confidence", "")
-    direction = alert.get("direction", "")
+    passed = []
 
-    # General rule: only high or medium confidence alerts pass
-    if confidence not in ["high", "medium"]:
-        return False
+    for signal in signals:
+        score = 0
 
-    # Specific blueprint filters
-    if alert_type == "whale" and confidence == "high":
-        return True
+        if signal.get("confidence"):
+            score += 1
+        if signal.get("direction"):
+            score += 1
+        if signal.get("type") in [
+            "whale", "fomo", "netflow", "reserves", "funding", "heatmap", "sentiment"
+        ]:
+            score += 1
 
-    if alert_type == "netflow" and direction == "bullish":
-        return True
+        if score >= 2:
+            passed.append(signal)
 
-    if alert_type == "reserves" and direction in ["bullish", "bearish"]:
-        return True
-
-    if alert_type == "sentiment" and confidence == "high":
-        return True
-
-    if alert_type == "strategy" and confidence == "high":
-        return True
-
-    if alert_type == "fomo" and confidence == "high":
-        return True
-
-    # Default: pass medium confidence alerts from key types
-    if alert_type in ["liquidation", "funding", "confluence"]:
-        return True
-
-    return False
+    return passed
