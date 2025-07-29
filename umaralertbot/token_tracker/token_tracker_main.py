@@ -1,11 +1,21 @@
-# umaralertbot/token_tracker/token_tracker_main.py
+# umaralertbot/token_tracker/token_main.py
 
-def track_token_activity(token_address):
-    print(f"Tracking activity for token: {token_address}")
-    # Placeholder for on-chain activity analysis (minting, burning, transfer patterns)
-    # In real case: Connect to blockchain APIs (e.g., Etherscan, Moralis)
+import asyncio
+from token_tracker.token_core import track_tokens
+from alert_engine.alert_dispatcher import dispatch_alert
+from apscheduler.schedulers.background import BackgroundScheduler
 
-# Example usage
-if __name__ == "__main__":
-    sample_token = "0x123456789abcdef"
-    track_token_activity(sample_token)
+def start_token_tracker():
+    scheduler = BackgroundScheduler(timezone="UTC")
+    scheduler.add_job(run_token_tracker, "interval", minutes=3)
+    scheduler.start()
+    print("[token_tracker] Tracker scheduled every 3 mins")
+
+def run_token_tracker():
+    asyncio.run(_run_token_logic())
+
+async def _run_token_logic():
+    results = await track_tokens()
+    if results:
+        for alert in results:
+            await dispatch_alert(alert)
