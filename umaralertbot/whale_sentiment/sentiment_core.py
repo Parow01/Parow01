@@ -1,76 +1,59 @@
-import logging
-import os
 import requests
+import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+SANTIMENT_API_KEY = os.getenv("SANTIMENT_API_KEY")
 
-def get_whale_sentiment():
-    """
-    Fetch whale sentiment based on on-chain balance and token distribution.
-    This uses free Santiment API for whale accumulation trends.
-    """
+def fetch_whale_sentiment():
     try:
-        logging.info("📊 Fetching whale sentiment...")
-
         url = "https://api.santiment.net/graphql"
-        query = {
-            "query": """
-            {
-              allProjects {
-                name
-                slug
-              }
+        query = """
+        {
+            sentiment(
+                slug: "bitcoin"
+                from: "now-1h"
+                to: "now"
+                interval: "1h"
+            ) {
+                positive
+                negative
             }
-            """  # Replace with real whale sentiment query once token/slug is selected
         }
-
+        """
         headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Apikey {os.getenv('SANTIMENT_API_KEY')}"
+            "Authorization": f"Apikey {SANTIMENT_API_KEY}",
+            "Content-Type": "application/json"
         }
+        response = requests.post(url, json={"query": query}, headers=headers)
+        data = response.json()
 
-        response = requests.post(url, json=query, headers=headers)
-        if response.status_code != 200:
-            raise Exception(f"Error: {response.status_code} - {response.text}")
+        if "data" in data and "sentiment" in data["data"]:
+            pos = data["data"]["sentiment"][0]["positive"]
+            neg = data["data"]["sentiment"][0]["negative"]
 
-        # Placeholder decision logic (to be enhanced)
-        signal = {
-            "type": "whale_sentiment",
-            "alert": "🐋 Whales are accumulating ETH over the past 3 days!",
-            "confidence": "medium"
-        }
+            if pos > 0.8 and neg < 0.2:
+                return {
+                    "type": "sentiment_alert",
+                    "confidence": "high",
+                    "source": "Santiment",
+                    "symbol": "BTC",
+                    "message": f"🧠 **Whale Sentiment Spike Detected!**\n\n> Positive sentiment: `{pos}`\n> Negative sentiment: `{neg}`\n\nLarge wallets show bullish confidence.",
+                }
+            elif neg > 0.8 and pos < 0.2:
+                return {
+                    "type": "sentiment_alert",
+                    "confidence": "high",
+                    "source": "Santiment",
+                    "symbol": "BTC",
+                    "message": f"⚠️ **Bearish Whale Sentiment Spike**\n\n> Positive sentiment: `{pos}`\n> Negative sentiment: `{neg}`\n\nSmart money may be anticipating downside.",
+                }
 
-        return signal
-
-    except Exception as e:
-        logging.error(f"❌ Error fetching whale sentiment: {e}")
         return None
 
-
-def send_whale_sentiment_alert(message):
-    try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        payload = {
-            "chat_id": CHAT_ID,
-            "text": message,
-            "parse_mode": "HTML"
-        }
-        response = requests.post(url, data=payload)
-        response.raise_for_status()
-        logging.info("✅ Whale sentiment alert sent.")
     except Exception as e:
-        logging.error(f"❌ Failed to send whale sentiment alert: {e}")
+        logging.error(f"[Sentiment API Error] {e}")
+        return None
 
-
-def run_whale_sentiment_monitor():
-    signal = get_whale_sentiment()
-    if signal:
-        alert_text = (
-            f"<b>{signal['alert']}</b>\n"
-            f"📊 <b>Confidence:</b> {signal['confidence'].capitalize()}"
-        )
-        send_whale_sentiment_alert(alert_text)
