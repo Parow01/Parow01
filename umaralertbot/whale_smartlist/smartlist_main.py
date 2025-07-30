@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from whale_smartlist.smartlist_core import monitor_smartlist
-from alert_engine.alert_manager import send_alert
+from alert_manager.message_router import send_alert
 
 def start_smartlist_monitor():
     scheduler = BackgroundScheduler()
