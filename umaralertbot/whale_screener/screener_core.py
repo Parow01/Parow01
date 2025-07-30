@@ -1,5 +1,3 @@
-# ✅ umaralertbot/whale_screener/whale_core.py
-
 import requests
 import logging
 import os
@@ -24,7 +22,6 @@ def send_whale_alert(message):
     except Exception as e:
         logging.error(f"❌ Failed to send whale alert: {e}")
 
-
 def fetch_and_process_whale_data():
     """
     Blueprint Logic: Track wallet flows from tagged whales, institutions, or smart lists.
@@ -32,7 +29,7 @@ def fetch_and_process_whale_data():
     try:
         logging.info("🐋 Whale screener running...")
 
-        # Simulated data — replace with real tagged wallet flows from Arkham/DEX Screener
+        # Placeholder — replace with real wallet detection from public tagged sources
         alert_msg = (
             "<b>🐋 Whale Screener Alert</b>\n\n"
             "💼 <b>Wallet:</b> 0xABC...123 (Smart Money)\n"
@@ -44,7 +41,14 @@ def fetch_and_process_whale_data():
 
         send_whale_alert(alert_msg)
 
+        return {
+            "type": "whale_screener",
+            "alert": alert_msg,
+            "confidence": "low"
+        }
+
     except Exception as e:
         logging.error(f"❌ Error in whale screener: {e}")
+        return None
 
 
