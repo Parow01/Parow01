@@ -1,7 +1,9 @@
+# ✅ umaralertbot/confluence_engine/confluence_main.py
+
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from whale_screener.whale_core import detect_whale_activity
-from fomo_scanner.fomo_core import scan_fomo_trades
+from fomo_scanner.fomo_core import fetch_and_process_fomo_data
 from funding_rate_monitor.funding_core import analyze_funding_rates
 from liquidation_heatmap.heatmap_core import check_liquidation_clusters
 from confluence_engine.confluence_utils import send_confluence_alert
@@ -11,11 +13,10 @@ def check_confluence():
         logging.info("🔎 Checking for Confluence Signals...")
 
         whale_alert = detect_whale_activity()
-        fomo_alert = scan_fomo_trades()
+        fomo_alert = fetch_and_process_fomo_data()
         funding_alert = analyze_funding_rates()
         heatmap_alert = check_liquidation_clusters()
 
-        # Define signal logic (strict confluence logic)
         bullish_signals = [
             whale_alert.get("direction") == "bullish",
             fomo_alert.get("direction") == "bullish",
