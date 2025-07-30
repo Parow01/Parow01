@@ -1,3 +1,5 @@
+# ✅ umaralertbot/whale_screener/whale_core.py
+
 import requests
 import logging
 import os
@@ -23,9 +25,6 @@ def send_whale_alert(message):
         logging.error(f"❌ Failed to send whale alert: {e}")
 
 def fetch_and_process_whale_data():
-    """
-    Blueprint Logic: Track wallet flows from tagged whales, institutions, or smart lists.
-    """
     try:
         logging.info("🐋 Whale screener running...")
 
@@ -50,5 +49,24 @@ def fetch_and_process_whale_data():
     except Exception as e:
         logging.error(f"❌ Error in whale screener: {e}")
         return None
+
+def detect_whale_activity():
+    """
+    Wrapper used by confluence_engine to check recent whale activity
+    """
+    try:
+        result = fetch_and_process_whale_data()
+        if result:
+            return {
+                "status": True,
+                "message": result["alert"],
+                "confidence": result.get("confidence", "low")
+            }
+        else:
+            return {"status": False}
+    except Exception as e:
+        logging.error(f"❌ detect_whale_activity failed: {e}")
+        return {"status": False}
+
 
 
