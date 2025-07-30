@@ -1,5 +1,3 @@
-from whale_smartlist.smartlist_main import start_smartlist_engine
-
 import os
 import logging
 from flask import Flask, request
@@ -10,27 +8,34 @@ import pytz
 from keepalive import keep_alive
 from message_router.router import process_update
 
-# Engine Imports ✅
+# ✅ Engine Imports
 from whale_engine.whale_main import start_whale_engine
-from fomo_scanner.fomo_main import start_fomo_scanner
 from whale_screener.screener_main import start_whale_screener
-from liquidation_heatmap.heatmap_main import start_liquidation_heatmap
 from funding_rate_monitor.funding_main import start_funding_rate_monitor
+from fomo_scanner.fomo_main import start_fomo_scanner
+from liquidation_heatmap.heatmap_main import start_liquidation_heatmap
 from confluence_engine.confluence_main import start_confluence_engine
-# Add more here as you build them
+from hotwallet_monitor.hotwallet_main import start_hotwallet_monitor
+from exchange_reserve.reserve_main import start_reserve_monitor
+from netflow_reaction.netflow_main import start_netflow_engine
+from whale_sentiment.sentiment_main import start_sentiment_engine
+from token_tracker.token_main import start_token_tracker
+from trading_strategy_engine.strategy_main import start_trading_engine
+from alert_engine.alert_main import start_alert_engine
+from whale_smartlist.smartlist_main import start_smartlist_engine
 
-# Load environment variables
+# ✅ Load environment variables
 load_dotenv()
 
-# Logging config
+# ✅ Logging config
 logging.basicConfig(level=logging.INFO)
 
-# Telegram Bot Token
+# ✅ Telegram Bot Token
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
     raise Exception("❌ BOT_TOKEN is missing in the .env file")
 
-# Set up Flask app
+# ✅ Set up Flask app
 app = Flask(__name__)
 
 @app.route('/')
@@ -46,21 +51,29 @@ def webhook():
         logging.error(f"❌ Error in webhook: {e}")
     return {"ok": True}
 
-# Scheduler setup
+# ✅ Scheduler Setup
 scheduler = BackgroundScheduler(timezone=pytz.UTC)
 scheduler.start()
 
-# 🔁 Start All Engines Here
+# ✅ Start All Engines Here (in background)
 start_whale_engine(scheduler)
-start_fomo_scanner(scheduler)
 start_whale_screener(scheduler)
-start_liquidation_heatmap(scheduler)
 start_funding_rate_monitor(scheduler)
+start_fomo_scanner(scheduler)
+start_liquidation_heatmap(scheduler)
 start_confluence_engine(scheduler)
-# Add more as needed
+start_hotwallet_monitor(scheduler)
+start_reserve_monitor(scheduler)
+start_netflow_engine(scheduler)
+start_sentiment_engine(scheduler)
+start_token_tracker(scheduler)
+start_trading_engine(scheduler)
+start_alert_engine(scheduler)
+start_smartlist_engine(scheduler)
 
-# Keep app alive
+# ✅ Keep app alive on Render
 keep_alive(app)
+
 
 
 
