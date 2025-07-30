@@ -19,3 +19,4 @@ async def _run_token_logic():
     if results:
         for alert in results:
             await dispatch_alert(alert)
+
