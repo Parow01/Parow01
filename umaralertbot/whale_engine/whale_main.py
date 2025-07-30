@@ -1,17 +1,9 @@
-# whale_main.py
+# umaralertbot/whale_engine/whale_main.py
 
-import logging
-from apscheduler.schedulers.background import BackgroundScheduler
-from whale_engine.whale_core import fetch_and_process_whales
-import pytz
+from whale_engine.whale_core import fetch_whale_activity
+from message_router.telegram_sender import send_telegram_alert
 
-def start_whale_engine(scheduler=None):
-    try:
-        if scheduler is None:
-            scheduler = BackgroundScheduler(timezone=pytz.UTC)
-            scheduler.start()
-        
-        scheduler.add_job(fetch_and_process_whales, 'interval', seconds=60)
-        logging.info("✅ Whale engine scheduled successfully.")
-    except Exception as e:
-        logging.error(f"❌ Failed to schedule whale engine: {e}")
+def run_whale_engine():
+    alert = fetch_whale_activity()
+    if alert:
+        send_telegram_alert(alert["alert"])
