@@ -1,7 +1,7 @@
 import time
 from typing import List, Dict
 
-from whale_screener.whale_main import detect_whale_activity
+from whale_screener.screener_main import detect_whale_activity
 from fomo_scanner.fomo_main import check_fomo_signals
 from funding_rate_monitor.funding_main import check_funding_rate_skew
 from liquidation_heatmap.heatmap_main import check_liquidation_heatmap
