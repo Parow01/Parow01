@@ -8,7 +8,7 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-def fetch_whale_sentiment():
+def get_whale_sentiment():
     """
     Fetch whale sentiment based on on-chain balance and token distribution.
     This uses free Santiment API for whale accumulation trends.
@@ -67,11 +67,10 @@ def send_whale_sentiment_alert(message):
 
 
 def run_whale_sentiment_monitor():
-    signal = fetch_whale_sentiment()
+    signal = get_whale_sentiment()
     if signal:
         alert_text = (
             f"<b>{signal['alert']}</b>\n"
             f"📊 <b>Confidence:</b> {signal['confidence'].capitalize()}"
         )
         send_whale_sentiment_alert(alert_text)
-
