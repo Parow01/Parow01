@@ -1,13 +1,17 @@
 import time
-from whale_sentiment.sentiment_core import get_whale_sentiment
-from alert_manager.alert_dispatcher import send_telegram_alert
+import logging
+from whale_sentiment.sentiment_core import fetch_whale_sentiment
+from alert_manager.message_router import route_alert
 
-def start_whale_sentiment_monitor():
+def start_sentiment_engine():
+    """
+    Starts the whale sentiment monitoring engine.
+    Called from main.py and runs in background.
+    """
     while True:
-        try:
-            alert = get_whale_sentiment()
-            if alert:
-                send_telegram_alert(alert)
-        except Exception as e:
-            print(f"[Whale Sentiment Error] {e}")
-        time.sleep(180)  # Adjust delay for API usage limits
+        logging.info("🔁 Whale Sentiment Engine cycle started...")
+        signal = fetch_whale_sentiment()
+        if signal:
+            route_alert(signal)
+        time.sleep(3600)  # Runs every hour
+
