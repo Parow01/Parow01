@@ -1,10 +1,15 @@
-# alert_engine_main.py
+import time
+from alert_engine.alert_core import collect_all_alerts
+from message_router.router_main import send_alert_to_telegram
 
-from alert_engine.alert_router import process_alert
+def run_alert_engine():
+    print("[AlertEngine] Starting master alert loop...")
+    while True:
+        alerts = collect_all_alerts()
 
-def send_alert(alert: dict):
-    """
-    External interface for engines to trigger alerts.
-    """
-    process_alert(alert)
+        for alert in alerts:
+            send_alert_to_telegram(alert)
+
+        time.sleep(60)  # Wait before next polling
+
 
