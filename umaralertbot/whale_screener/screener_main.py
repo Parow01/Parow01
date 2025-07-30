@@ -1,11 +1,15 @@
-# ✅ umaralertbot/whale_screener/whale_main.py
+# ✅ umaralertbot/whale_screener/screener_main.py
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from whale_screener.whale_core import fetch_and_process_whale_data
+from whale_screener.screener_core import fetch_whale_data, analyze_whale_patterns
 
-def start_whale_screener():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(fetch_and_process_whale_data, 'interval', minutes=4)
-    scheduler.start()
+def detect_whale_activity():
+    try:
+        data = fetch_whale_data()
+        alerts = analyze_whale_patterns(data)
+        return alerts
+    except Exception as e:
+        print(f"[Whale Screener] Error: {e}")
+        return []
+
 
 
