@@ -1,5 +1,3 @@
-# umaralertbot/token_tracker/token_main.py
-
 import asyncio
 from token_tracker.token_core import track_tokens
 from alert_engine.alert_dispatcher import dispatch_alert
@@ -19,4 +17,5 @@ async def _run_token_logic():
     if results:
         for alert in results:
             await dispatch_alert(alert)
+
 
