@@ -4,7 +4,7 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from whale_screener.whale_core import detect_whale_activity
 from fomo_scanner.fomo_core import fetch_and_process_fomo_data
-from funding_rate_monitor.funding_core import analyze_funding_rates
+from funding_rate_monitor.funding_core import analyze_funding_data
 from liquidation_heatmap.heatmap_core import check_liquidation_clusters
 from confluence_engine.confluence_utils import send_confluence_alert
 
