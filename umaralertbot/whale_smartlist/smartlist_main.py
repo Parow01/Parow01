@@ -10,4 +10,5 @@ def start_smartlist_monitor():
 def run_smartlist_check():
     result = monitor_smartlist()
     if result:
-        send_alert(result["alert"])
+        route_alert(result)
+
