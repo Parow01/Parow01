@@ -1,5 +1,3 @@
-# ✅ umaralertbot/fomo_scanner/fomo_core.py
-
 import requests
 import logging
 import os
@@ -9,6 +7,7 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
 
 def send_fomo_alert(message):
     try:
@@ -44,8 +43,34 @@ def fetch_and_process_fomo_data():
 
         send_fomo_alert(alert_msg)
 
+        return {
+            "type": "fomo_scanner",
+            "alert": alert_msg,
+            "confidence": "medium"
+        }
+
     except Exception as e:
         logging.error(f"❌ Error in FOMO scanner: {e}")
+        return None
+
+
+def scan_fomo_trades():
+    """
+    Wrapper for confluence engine to call this scanner and get result.
+    """
+    try:
+        result = fetch_and_process_fomo_data()
+        if result:
+            return {
+                "status": True,
+                "message": result["alert"],
+                "confidence": result.get("confidence", "medium")
+            }
+        else:
+            return {"status": False}
+    except Exception as e:
+        logging.error(f"❌ scan_fomo_trades failed: {e}")
+        return {"status": False}
 
 
 
