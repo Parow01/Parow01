@@ -15,3 +15,19 @@ def job_funding_monitor():
     alerts = fetch_funding_rate_data()
     send_funding_rate_alert(alerts)
 
+# ✅ Used by alert_engine
+def check_funding_rate_skew():
+    try:
+        result = fetch_funding_rate_data()
+        if result:
+            return {
+                "status": True,
+                "message": result.get("alert"),
+                "confidence": result.get("confidence", "medium")
+            }
+        else:
+            return {"status": False}
+    except Exception as e:
+        logging.error(f"[Funding Rate Monitor Error] {e}")
+        return {"status": False}
+
