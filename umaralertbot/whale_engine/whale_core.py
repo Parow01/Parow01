@@ -1,39 +1,47 @@
-# umaralertbot/whale_engine/whale_core.py
-
 import requests
+import logging
 
-def fetch_whale_activity() -> dict | None:
+def analyze_whale_data():
     """
-    Pull large wallet or tagged address activity from public APIs.
-    Currently uses Whale Alert free endpoint with label filter logic.
+    Checks for significant whale transfers using Whale Alert API.
+    Returns a structured alert dict if conditions are met.
     """
     try:
         url = "https://api.whale-alert.io/v1/transactions"
         params = {
-            "api_key": "demo",  # Replace with real API key if needed
+            "api_key": "demo",  # Replace with your actual Whale Alert key if you upgrade
             "min_value": 1000000,
             "limit": 1
         }
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=10)
         data = response.json()
 
         if data.get("transactions"):
             tx = data["transactions"][0]
-            label = tx.get("from", {}).get("owner_type", "unknown")
-            symbol = tx.get("symbol", "crypto")
+            symbol = tx.get("symbol", "crypto").upper()
             amount = tx.get("amount", 0)
-            to_label = tx.get("to", {}).get("owner_type", "unknown")
+            from_owner = tx.get("from", {}).get("owner_type", "unknown")
+            to_owner = tx.get("to", {}).get("owner_type", "unknown")
 
-            alert = f"🐋 {amount} {symbol.upper()} moved from {label} to {to_label}"
+            alert_msg = f"🐋 {amount} {symbol} transferred from {from_owner} to {to_owner}"
 
             return {
-                "type": "whale_transfer",
-                "alert": alert,
-                "confidence": "medium"
+                "status": "ok",
+                "alerts": [
+                    {
+                        "type": "whale_transfer",
+                        "message": alert_msg,
+                        "confidence": "medium"
+                    }
+                ]
             }
 
     except Exception as e:
-        print(f"[Whale Engine] Error: {e}")
-    return None
+        logging.error(f"[whale_core] Error fetching whale activity: {e}")
+
+    return {
+        "status": "ok",
+        "alerts": []
+    }
 
