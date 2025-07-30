@@ -19,4 +19,15 @@ def start_reserve_monitor():
 
     scheduler.add_job(job, 'interval', minutes=15)
     scheduler.start()
+    # ✅ Add this at the bottom of reserve_main.py
+
+def detect_reserve_shift():
+    try:
+        result = analyze_exchange_reserves()
+        if result["direction"] != "neutral" and "No major" not in result["alert"]:
+            message = f"<b>📦 Exchange Reserve Signal ({result['direction'].upper()})</b>\n\n{result['alert']}"
+            send_telegram_alert(message)
+    except Exception as e:
+        logging.error(f"[Reserve Monitor] detect_reserve_shift() error: {e}")
+
 
