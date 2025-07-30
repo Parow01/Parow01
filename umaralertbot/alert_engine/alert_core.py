@@ -9,7 +9,7 @@ from confluence_engine.confluence_main import start_confluence_engine
 from netflow_reaction.netflow_main import detect_netflow_reaction
 from exchange_reserve.reserve_main import detect_reserve_shift
 from hotwallet_monitor.hotwallet_main import detect_hotwallet_movement
-from whale_sentiment.sentiment_main import evaluate_whale_sentiment
+from whale_sentiment.sentiment_main import start_sentiment_engine  ✅
 from whale_smartlist.smartlist_main import scan_smartlist_trades
 from token_tracker.token_main import detect_token_spike
 from trading_strategy_engine.strategy_main import run_strategy_engine
