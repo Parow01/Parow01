@@ -1,3 +1,5 @@
+# ✅ umaralertbot/fomo_scanner/fomo_core.py
+
 import requests
 import logging
 import os
@@ -7,7 +9,6 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-
 
 def send_fomo_alert(message):
     try:
@@ -23,15 +24,15 @@ def send_fomo_alert(message):
     except Exception as e:
         logging.error(f"❌ Failed to send FOMO alert: {e}")
 
-
 def fetch_and_process_fomo_data():
     """
     Blueprint Logic: Scan for sudden wallet-based buying spikes or memecoin pumps.
+    Returns a dict for confluence integration.
     """
     try:
         logging.info("🚀 FOMO scanner running...")
 
-        # Simulated spike — Replace with live scanner later using Smart Money tags + volume
+        # Simulated alert logic — replace with live detection later
         alert_msg = (
             "<b>🚨 FOMO Scanner Alert</b>\n\n"
             "💹 <b>Token:</b> $PEPE\n"
@@ -41,36 +42,22 @@ def fetch_and_process_fomo_data():
             "⚠️ <i>Likely speculative pump in progress</i>"
         )
 
+        # Send Telegram alert
         send_fomo_alert(alert_msg)
 
+        # Return structured alert for confluence
         return {
-            "type": "fomo_scanner",
-            "alert": alert_msg,
-            "confidence": "medium"
+            "direction": "bullish",
+            "alert": alert_msg
         }
 
     except Exception as e:
         logging.error(f"❌ Error in FOMO scanner: {e}")
-        return None
+        return {
+            "direction": "neutral",
+            "alert": "❌ FOMO scanner error."
+        }
 
-
-def scan_fomo_trades():
-    """
-    Wrapper for confluence engine to call this scanner and get result.
-    """
-    try:
-        result = fetch_and_process_fomo_data()
-        if result:
-            return {
-                "status": True,
-                "message": result["alert"],
-                "confidence": result.get("confidence", "medium")
-            }
-        else:
-            return {"status": False}
-    except Exception as e:
-        logging.error(f"❌ scan_fomo_trades failed: {e}")
-        return {"status": False}
 
 
 
