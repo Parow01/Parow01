@@ -18,15 +18,14 @@ def fetch_funding_rate_data():
     }
 
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         data = response.json()
 
-        # Example processing logic (adjust as needed per blueprint rules)
         alerts = []
         for ex in data.get("data", []):
             rate = float(ex.get("fundingRate", 0))
-            if abs(rate) >= 0.025:  # Trigger if extreme positive or negative funding rate
+            if abs(rate) >= 0.025:  # Threshold defined in blueprint
                 direction = "🟢 Longs Overheating" if rate > 0 else "🔴 Shorts Overheating"
                 alerts.append(f"{direction} — {ex['exchangeName']}: {rate:.4%}")
 
@@ -53,3 +52,15 @@ def send_funding_rate_alert(alerts):
         logging.info("✅ Funding rate alert sent.")
     except Exception as e:
         logging.error(f"❌ Failed to send funding rate alert: {e}")
+
+# ✅ Used by confluence_engine
+def analyze_funding_data():
+    alerts = fetch_funding_rate_data()
+    if alerts:
+        return {
+            "type": "funding_rate",
+            "alert": "\n".join(alerts),
+            "confidence": "medium"
+        }
+    return None
+
