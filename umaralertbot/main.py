@@ -10,7 +10,7 @@ from message_router.router import process_update
 
 # ✅ Engine Imports
 from whale_engine.whale_main import start_whale_engine
-from whale_screener.screener_main import start_whale_screener
+from whale_screener.whale_core import detect_whale_activity
 from funding_rate_monitor.funding_main import start_funding_rate_monitor
 from fomo_scanner.fomo_main import start_fomo_scanner
 from liquidation_heatmap.heatmap_main import start_liquidation_heatmap
