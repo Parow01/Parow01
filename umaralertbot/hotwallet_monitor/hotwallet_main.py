@@ -9,7 +9,7 @@ def start_hotwallet_monitor():
     scheduler.start()
     # ✅ Add this at the bottom of hotwallet_main.py
 
-from hotwallet_monitor.hotwallet_core import analyze_hotwallet_activity
+from hotwallet_monitor.hotwallet_core import check_hotwallet_activity
 from alert_engine.send_alert import send_telegram_alert
 import logging
 
