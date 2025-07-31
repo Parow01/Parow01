@@ -1,12 +1,21 @@
 # ✅ umaralertbot/fomo_scanner/fomo_main.py
 
-from apscheduler.schedulers.background import BackgroundScheduler
+import logging
 from fomo_scanner.fomo_core import fetch_and_process_fomo_data
 
-def start_fomo_scanner():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(fetch_and_process_fomo_data, 'interval', minutes=4)
-    scheduler.start()
+def job_fomo_scan():
+    logging.info("🔄 Scanning for FOMO tokens...")
+    fetch_and_process_fomo_data()
+
+def start_fomo_scanner(scheduler):  # ✅ Accept centralized scheduler
+    scheduler.add_job(
+        job_fomo_scan,
+        trigger="interval",
+        minutes=4,
+        id="fomo_scanner_job",
+        replace_existing=True
+    )
+    logging.info("✅ FOMO scanner job added to scheduler.")
 
 def check_fomo_signals():
     try:
@@ -20,8 +29,9 @@ def check_fomo_signals():
         else:
             return {"status": False}
     except Exception as e:
-        print(f"[FOMO Scanner Error] {e}")
+        logging.error(f"[FOMO Scanner Error] {e}")
         return {"status": False}
+
 
 
 
