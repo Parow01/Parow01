@@ -11,7 +11,7 @@ from exchange_reserve.reserve_main import detect_reserve_shift
 from hotwallet_monitor.hotwallet_main import detect_hotwallet_movement
 from whale_sentiment.sentiment_main import start_sentiment_engine
 from whale_smartlist.smartlist_main import start_smartlist_monitor
-from token_tracker.token_main import detect_token_spike
+from token_tracker.token_main import start_token_monitor
 from trading_strategy_engine.strategy_main import run_strategy_engine
 
 alert_history = []
