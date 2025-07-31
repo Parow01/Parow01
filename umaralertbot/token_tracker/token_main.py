@@ -6,7 +6,7 @@ def start_token_tracker(scheduler):
     scheduler.add_job(run_token_tracker, "interval", minutes=3)
     print("[token_tracker] Tracker scheduled every 3 mins")
 
-def run_token_tracker():
+def start_token_monitor(scheduler):
     asyncio.run(_run_token_logic())
 
 async def _run_token_logic():
