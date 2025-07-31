@@ -22,7 +22,7 @@ from whale_sentiment.sentiment_main import start_sentiment_engine
 from token_tracker.token_main import start_token_tracker
 from trading_strategy_engine.strategy_main import start_trading_engine
 from alert_engine.alert_main import start_alert_engine
-from whale_smartlist.smartlist_main import start_smartlist_engine
+from whale_smartlist.smartlist_main import start_smartlist_monitor
 
 # ✅ Load environment variables
 load_dotenv()
