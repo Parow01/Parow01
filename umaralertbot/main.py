@@ -57,7 +57,7 @@ scheduler.start()
 
 # ✅ Start All Engines Here (in background)
 start_whale_engine(scheduler)
-start_whale_screener(scheduler)
+start_whale_engine(scheduler)
 start_funding_rate_monitor(scheduler)
 start_fomo_scanner(scheduler)
 start_liquidation_heatmap(scheduler)
