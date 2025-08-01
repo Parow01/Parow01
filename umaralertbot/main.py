@@ -1,3 +1,5 @@
+# ✅ umaralertbot/main.py
+
 import asyncio
 import logging
 from pytz import UTC
@@ -21,22 +23,22 @@ from alert_engine.alert_main import start_alert_engine
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
+# ✅ Load environment variables
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-# Initialize logging
+# ✅ Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Telegram Bot
+# ✅ Telegram bot
 bot = Bot(token=TELEGRAM_TOKEN)
 application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-# Initialize Scheduler (✅ Fixed timezone using pytz.UTC)
+# ✅ Background scheduler with timezone
 scheduler = BackgroundScheduler(timezone=UTC)
 
-# Register all modules
+# ✅ Register background jobs from all modules
 start_whale_engine(scheduler)
 start_fomo_scanner(scheduler)
 start_liquidation_heatmap(scheduler)
@@ -50,14 +52,14 @@ start_token_tracker(scheduler)
 start_strategy_engine(scheduler)
 start_alert_engine(scheduler)
 
-# Start Flask server for uptime (keep-alive)
+# ✅ Flask server to keep Render instance alive
 keep_alive()
 
-# Start scheduler
+# ✅ Start scheduler
 scheduler.start()
 print("✅ Scheduler started. All modules running.")
 
-# Start Telegram bot
+# ✅ Start Telegram bot loop
 async def main():
     print("✅ Telegram bot starting...")
     await application.initialize()
