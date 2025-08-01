@@ -1,15 +1,14 @@
-# smartlist_main.py
+import logging
+from apscheduler.triggers.interval import IntervalTrigger
+from whale_smartlist.smartlist_core import check_smart_wallets
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from whale_smartlist.smartlist_core import fetch_smart_whale_activity
-from alert_manager.alert_handler import send_alert_to_telegram
-
-def start_smartlist_monitor(scheduler: BackgroundScheduler):
-    def job():
-        alerts = fetch_smart_whale_activity()
-        for alert in alerts:
-            send_alert_to_telegram(alert)
-
-    scheduler.add_job(job, trigger='interval', minutes=5, id='smartlist_monitor_job', replace_existing=True)
+def start_smartlist_monitor(scheduler):
+    scheduler.add_job(
+        check_smart_wallets,
+        trigger=IntervalTrigger(minutes=10),
+        id="job_smartlist_monitor",
+        replace_existing=True
+    )
+    logging.info("✅ Smartlist Monitor job added to scheduler.")
 
 
