@@ -14,7 +14,7 @@ from funding_rate_monitor.funding_main import start_funding_rate_monitor
 from fomo_scanner.fomo_main import start_fomo_scanner
 from liquidation_heatmap.heatmap_main import start_liquidation_heatmap
 from confluence_engine.confluence_main import start_confluence_engine
-from hotwallet_monitor.hotwallet_core import check_hotwallet_activity
+from hotwallet_monitor.hotwallet_main import start_hotwallet_monitor
 from exchange_reserve.reserve_main import start_reserve_monitor
 from netflow_reaction.netflow_main import start_netflow_engine
 from whale_sentiment.sentiment_main import start_sentiment_engine
