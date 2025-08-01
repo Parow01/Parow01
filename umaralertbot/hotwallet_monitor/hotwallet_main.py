@@ -1,30 +1,14 @@
+from apscheduler.schedulers.background import BackgroundScheduler
 from hotwallet_monitor.hotwallet_core import check_hotwallet_activity
 
+# Start hotwallet monitoring via scheduler (called from main.py)
+def start_hotwallet_monitor(scheduler: BackgroundScheduler):
+    scheduler.add_job(check_hotwallet_activity, 'interval', minutes=1, id='hotwallet_monitor', replace_existing=True)
+
+# Called from alert engine (on-demand run)
 def detect_hotwallet_movement():
-    """
-    Main entry point to run the hotwallet monitor pipeline.
-    Returns a list of alert dictionaries if significant wallet activity is found.
-    """
-    alerts = []
-    
-    internal_txs = fetch_etherscan_internal_txs()
-    if not internal_txs:
-        return alerts
+    check_hotwallet_activity()
 
-    tagged = tag_known_wallets(internal_txs)
-    suspicious = detect_large_movements(tagged)
-
-    for tx in suspicious:
-        alerts.append({
-            "type": "Hot Wallet Movement",
-            "wallet": tx.get("wallet_tag", "Unknown"),
-            "amount": tx["amount_usd"],
-            "hash": tx["hash"],
-            "timestamp": tx["timestamp"],
-            "confidence": "high" if tx["amount_usd"] > 1_000_000 else "medium"
-        })
-
-    return alerts
 
 
 
