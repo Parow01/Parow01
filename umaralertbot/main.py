@@ -1,76 +1,71 @@
-import os
+import asyncio
 import logging
-from flask import Flask, request
-from zoneinfo import ZoneInfo  # ✅ Use this instead of pytz
+from pytz import UTC
 from apscheduler.schedulers.background import BackgroundScheduler
-from dotenv import load_dotenv
+from telegram import Bot
+from telegram.ext import Application, CommandHandler
 
 from keepalive import keep_alive
-from message_router.router import process_update
-
-# ✅ Engine Imports
-from whale_engine.whale_main import start_whale_engine
-from funding_rate_monitor.funding_main import start_funding_rate_monitor
+from whale_screener.whale_main import start_whale_engine
 from fomo_scanner.fomo_main import start_fomo_scanner
-from liquidation_heatmap.heatmap_main import start_liquidation_heatmap
+from liquidation_heatmap.liquidation_main import start_liquidation_heatmap
+from funding_rate_monitor.funding_main import start_funding_monitor
 from confluence_engine.confluence_main import start_confluence_engine
-from hotwallet_monitor.hotwallet_main import start_hotwallet_monitor
 from exchange_reserve.reserve_main import start_reserve_monitor
-from netflow_reaction.netflow_main import start_netflow_engine
-from whale_sentiment.sentiment_main import start_sentiment_engine
-from token_tracker.token_main import start_token_tracker
-from trading_strategy_engine.strategy_main import start_trading_engine
-from alert_engine.alert_main import start_alert_engine
+from hotwallet_monitor.hotwallet_main import start_hotwallet_monitor
+from whale_sentiment.sentiment_main import start_sentiment_monitor
 from whale_smartlist.smartlist_main import start_smartlist_monitor
+from token_tracker.token_main import start_token_tracker
+from trading_strategy_engine.strategy_main import start_strategy_engine
+from alert_engine.alert_main import start_alert_engine
+from dotenv import load_dotenv
+import os
 
-# ✅ Load environment variables
+# Load environment variables
 load_dotenv()
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-# ✅ Logging config
+# Initialize logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# ✅ Telegram Bot Token
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-if not BOT_TOKEN:
-    raise Exception("❌ BOT_TOKEN is missing in the .env file")
+# Initialize Telegram Bot
+bot = Bot(token=TELEGRAM_TOKEN)
+application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-# ✅ Set up Flask app
-app = Flask(__name__)
+# Initialize Scheduler (✅ Fixed timezone using pytz.UTC)
+scheduler = BackgroundScheduler(timezone=UTC)
 
-@app.route('/')
-def home():
-    return "✅ UmarAlertBot is Running"
-
-@app.route(f"/{BOT_TOKEN}", methods=["POST"])
-def webhook():
-    try:
-        update = request.get_json()
-        process_update(update)
-    except Exception as e:
-        logging.error(f"❌ Error in webhook: {e}")
-    return {"ok": True}
-
-# ✅ Scheduler Setup using zoneinfo
-scheduler = BackgroundScheduler(timezone=ZoneInfo("UTC"))
-scheduler.start()
-
-# ✅ Start All Engines
+# Register all modules
 start_whale_engine(scheduler)
-start_funding_rate_monitor(scheduler)
 start_fomo_scanner(scheduler)
 start_liquidation_heatmap(scheduler)
+start_funding_monitor(scheduler)
 start_confluence_engine(scheduler)
-start_hotwallet_monitor(scheduler)
 start_reserve_monitor(scheduler)
-start_netflow_engine(scheduler)
-start_sentiment_engine(scheduler)
-start_token_tracker(scheduler)
-start_trading_engine(scheduler)
-start_alert_engine(scheduler)
+start_hotwallet_monitor(scheduler)
+start_sentiment_monitor(scheduler)
 start_smartlist_monitor(scheduler)
+start_token_tracker(scheduler)
+start_strategy_engine(scheduler)
+start_alert_engine(scheduler)
 
-# ✅ Keep app alive on Render
-keep_alive(app)
+# Start Flask server for uptime (keep-alive)
+keep_alive()
+
+# Start scheduler
+scheduler.start()
+print("✅ Scheduler started. All modules running.")
+
+# Start Telegram bot
+async def main():
+    print("✅ Telegram bot starting...")
+    await application.initialize()
+    await application.start()
+    await application.updater.start_polling()
+    print("✅ Telegram bot running.")
+
+asyncio.run(main())
 
 
 
