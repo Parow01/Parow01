@@ -1,65 +1,85 @@
-# ✅ umaralertbot/utils/etherscan_helper.py
-
 import requests
-import logging
-import os
-from dotenv import load_dotenv
+import time
+from utils.safe_requests import safe_get
 
-load_dotenv()
+ETHERSCAN_API_KEY = "P42VPVV2CH2JGXZ4PYMVFR5X9YGKJQVI9N"
+BASE_URL = "https://api.etherscan.io/api"
 
-ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY")
-
-ETHERSCAN_DOMAINS = {
-    "ethereum": "https://api.etherscan.io",
-    "bsc": "https://api.bscscan.com",
-    "polygon": "https://api.polygonscan.com",
-    # Add more chains here if needed
-}
-
-def get_latest_transactions(wallet_address: str, chain: str = "ethereum", limit: int = 5):
+def get_wallet_transactions(wallet_address, start_block=0, end_block=99999999, sort="desc", max_retries=3):
     """
-    Fetch recent transactions from Etherscan-compatible chains (Ethereum, BSC, Polygon, etc.)
+    Fetches normal transactions for a given wallet address from Etherscan API.
     """
-    try:
-        base_url = ETHERSCAN_DOMAINS.get(chain.lower())
-        if not base_url:
-            logging.warning(f"[etherscan_helper] Unsupported chain: {chain}")
-            return []
+    url = BASE_URL
+    params = {
+        "module": "account",
+        "action": "txlist",
+        "address": wallet_address,
+        "startblock": start_block,
+        "endblock": end_block,
+        "sort": sort,
+        "apikey": ETHERSCAN_API_KEY
+    }
 
-        url = f"{base_url}/api"
-        params = {
-            "module": "account",
-            "action": "txlist",
-            "address": wallet_address,
-            "startblock": 0,
-            "endblock": 99999999,
-            "sort": "desc",
-            "apikey": ETHERSCAN_API_KEY
-        }
-        response = requests.get(url, params=params, timeout=10)
-        data = response.json()
+    for attempt in range(max_retries):
+        try:
+            response = safe_get(url, params=params)
+            if response and response.get("status") == "1":
+                return response["result"]
+            elif response and response.get("message") == "No transactions found":
+                return []
+            else:
+                print(f"[etherscan_helper] Unexpected response: {response}")
+        except Exception as e:
+            print(f"[etherscan_helper] Attempt {attempt + 1} failed: {e}")
+        time.sleep(1)
 
-        if data["status"] == "1":
-            return data["result"][:limit]
-        else:
-            logging.warning(f"[etherscan_helper] No data for {wallet_address} on {chain}")
-    except Exception as e:
-        logging.error(f"[etherscan_helper] Error fetching tx for {wallet_address} on {chain}: {e}")
+    print("[etherscan_helper] Failed to fetch transactions after retries.")
     return []
 
-def is_contract(address: str, chain: str = "ethereum") -> bool:
+def get_internal_transactions(wallet_address, start_block=0, end_block=99999999, sort="desc", max_retries=3):
     """
-    Check if an address is a contract address
+    Fetches internal transactions (e.g., contract interactions) for a wallet address.
+    """
+    url = BASE_URL
+    params = {
+        "module": "account",
+        "action": "txlistinternal",
+        "address": wallet_address,
+        "startblock": start_block,
+        "endblock": end_block,
+        "sort": sort,
+        "apikey": ETHERSCAN_API_KEY
+    }
+
+    for attempt in range(max_retries):
+        try:
+            response = safe_get(url, params=params)
+            if response and response.get("status") == "1":
+                return response["result"]
+            elif response and response.get("message") == "No transactions found":
+                return []
+            else:
+                print(f"[etherscan_helper] Unexpected response: {response}")
+        except Exception as e:
+            print(f"[etherscan_helper] Attempt {attempt + 1} failed: {e}")
+        time.sleep(1)
+
+    print("[etherscan_helper] Failed to fetch internal txs after retries.")
+    return []
+
+def is_hot_transaction(tx: dict) -> bool:
+    """
+    Determines if a transaction qualifies as a 'hot' wallet movement.
+    Basic logic: high value, fast repeat, or abnormal pattern.
     """
     try:
-        base_url = ETHERSCAN_DOMAINS.get(chain.lower())
-        if not base_url:
+        value_eth = int(tx["value"]) / 1e18
+        if value_eth > 100:
+            return True
+        if tx.get("isError") == "1":
             return False
+        return False
+    except Exception:
+        return False
 
-        url = f"{base_url}/api"
-        params = {
-            "module": "contract",
-            "action": "getsourcecode",
-            "address": address,
-            "apikey
 
