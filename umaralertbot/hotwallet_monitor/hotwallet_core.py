@@ -1,64 +1,51 @@
-# ✅ umaralertbot/hotwallet_monitor/hotwallet_core.py
-
-import requests
+# ✅ hotwallet_monitor/hotwallet_core.py
 import logging
-import os
-from dotenv import load_dotenv
+from utils.etherscan_helper import get_wallet_transactions
 from alert_engine.send_alert import send_telegram_alert
 
-load_dotenv()
-
-ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY")  # Load from .env
-
+# ✅ Predefined exchange wallets
 EXCHANGE_WALLETS = {
     "Binance": ["0x3f5CE5FBFe3E9af3971dD833D26BA9b5C936f0bE"],
     "Coinbase": ["0x503828976D22510aad0201ac7EC88293211D23Da"],
     "Kraken": ["0x0A869d79a7052C7f1b55a8ebabbea3420F0D1E13"]
 }
 
-def get_wallet_activity(wallet_address: str) -> list:
-    try:
-        url = "https://api.etherscan.io/api"
-        params = {
-            "module": "account",
-            "action": "txlist",
-            "address": wallet_address,
-            "startblock": 9999999 - 1000,
-            "endblock": 99999999,
-            "sort": "desc",
-            "apikey": ETHERSCAN_API_KEY
-        }
-        response = requests.get(url, params=params, timeout=10)
-        data = response.json()
-        if data["status"] == "1":
-            return data["result"]
-    except Exception as e:
-        logging.warning(f"[HotWallet] API error for {wallet_address}: {e}")
-    return []
+# ✅ Known exchange receiving wallets to filter out internal tx
+KNOWN_EXCHANGE_DESTINATIONS = set(sum(EXCHANGE_WALLETS.values(), []))
+
+TX_ETH_THRESHOLD = 1000  # ≈ $3M+
 
 def check_hotwallet_activity():
     try:
-        logging.info("🔍 Checking exchange hot wallet activity...")
+        logging.info("🔍 [Hotwallet] Checking hot wallet activity...")
         alerts = []
 
         for exchange, wallets in EXCHANGE_WALLETS.items():
             for wallet in wallets:
-                txs = get_wallet_activity(wallet)
-                if txs:
-                    latest_tx = txs[0]
-                    value_eth = int(latest_tx["value"]) / 1e18
-                    to_addr = latest_tx["to"]
-                    if value_eth > 1000:  # Threshold for large tx
+                transactions = get_wallet_transactions(wallet)
+                if not transactions:
+                    continue
+
+                for tx in transactions:
+                    if tx.get("value_eth", 0) >= TX_ETH_THRESHOLD:
+                        if tx["to"].lower() in KNOWN_EXCHANGE_DESTINATIONS:
+                            continue  # Skip internal transfers
+
                         alerts.append(
-                            f"<b>🔥 Large TX from {exchange}</b>\n"
-                            f"💸 <b>Amount:</b> {value_eth:.2f} ETH\n"
-                            f"📥 <b>To:</b> {to_addr}\n"
+                            f"<b>🔥 Large Transfer from {exchange}</b>\n"
+                            f"💸 <b>Amount:</b> {tx['value_eth']:.2f} ETH\n"
+                            f"📥 <b>To:</b> {tx['to']}\n"
+                            f"🔗 <a href='https://etherscan.io/tx/{tx['hash']}'>View TX</a>"
                         )
+                        break  # Only alert on most recent valid large tx
 
         if alerts:
-            message = "<b>🔁 Exchange Hot Wallet Alert</b>\n\n" + "\n".join(alerts)
+            message = "<b>🚨 Hot Wallet Movement Detected</b>\n\n" + "\n\n".join(alerts)
             send_telegram_alert(message)
+        else:
+            logging.info("✅ [Hotwallet] No large movement detected.")
 
     except Exception as e:
-        logging.error(f"[HotWallet] Unexpected error: {e}")
+        logging.error(f"[Hotwallet] Error in check_hotwallet_activity(): {e}")
+
 
