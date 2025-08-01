@@ -10,7 +10,7 @@ from exchange_reserve.reserve_main import detect_reserve_shift
 from hotwallet_monitor.hotwallet_main import detect_hotwallet_movement
 from whale_sentiment.sentiment_main import start_sentiment_monitor
 from whale_smartlist.smartlist_main import start_smartlist_monitor
-from trading_strategy_engine.strategy_main import start_trading_engine
+from trading_strategy_engine.strategy_main import detect_strategy_signal
 
 def collect_all_alerts() -> List[Dict]:
     """
@@ -30,7 +30,7 @@ def collect_all_alerts() -> List[Dict]:
         start_sentiment_engine,
         start_smartlist_monitor,
         start_token_monitor,
-        start_trading_engine
+        detect_strategy_signal
     ]
 
     for module in modules:
