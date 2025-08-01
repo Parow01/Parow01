@@ -1,17 +1,34 @@
-import time
-import logging
+from apscheduler.schedulers.background import BackgroundScheduler
 from whale_sentiment.sentiment_core import fetch_whale_sentiment
 from alert_manager.message_router import route_alert
+import logging
 
-def start_sentiment_engine():
-    """
-    Starts the whale sentiment monitoring engine.
-    Called from main.py and runs in background.
-    """
-    while True:
-        logging.info("🔁 Whale Sentiment Engine cycle started...")
+# 🔁 Scheduler-compatible version
+def start_sentiment_engine(scheduler: BackgroundScheduler):
+    def job_sentiment_check():
+        try:
+            signal = fetch_whale_sentiment()
+            if signal:
+                route_alert(signal)
+        except Exception as e:
+            logging.error(f"[Whale Sentiment Job Error] {e}")
+
+    scheduler.add_job(job_sentiment_check, 'interval', minutes=60)
+    logging.info("✅ Whale Sentiment job added to scheduler.")
+
+# ✅ Alert engine-compatible function
+def detect_whale_sentiment():
+    try:
         signal = fetch_whale_sentiment()
         if signal:
-            route_alert(signal)
-        time.sleep(3600)  # Runs every hour
+            return {
+                "status": True,
+                "message": signal.get("message", "🧠 Whale Sentiment Alert"),
+                "confidence": signal.get("confidence", "medium")
+            }
+        return {"status": False}
+    except Exception as e:
+        logging.error(f"[Sentiment Engine] detect_whale_sentiment error: {e}")
+        return {"status": False}
+
 
