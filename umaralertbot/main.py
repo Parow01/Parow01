@@ -2,6 +2,7 @@ import os
 import logging
 from flask import Flask, request
 from apscheduler.schedulers.background import BackgroundScheduler
+from pytz import utc
 from dotenv import load_dotenv
 import pytz
 
