@@ -1,10 +1,4 @@
-# umaralertbot/hotwallet_monitor/hotwallet_main.py
-
-from hotwallet_monitor.hotwallet_core import (
-    fetch_etherscan_internal_txs,
-    tag_known_wallets,
-    detect_large_movements
-)
+from hotwallet_monitor.hotwallet_core import check_hotwallet_activity
 
 def detect_hotwallet_movement():
     """
