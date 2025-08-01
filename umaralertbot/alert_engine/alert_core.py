@@ -1,4 +1,3 @@
-import time
 from typing import List, Dict
 
 from whale_screener.whale_core import detect_whale_activity
@@ -13,9 +12,6 @@ from whale_sentiment.sentiment_main import start_sentiment_engine
 from whale_smartlist.smartlist_main import start_smartlist_monitor
 from token_tracker.token_main import start_token_monitor
 from trading_strategy_engine.strategy_main import start_trading_engine
-
-
-alert_history = []
 
 def collect_all_alerts() -> List[Dict]:
     """
@@ -32,10 +28,10 @@ def collect_all_alerts() -> List[Dict]:
         detect_netflow_reaction,
         detect_reserve_shift,
         detect_hotwallet_movement,
-        evaluate_whale_sentiment,
-        scan_smartlist_trades,
-        detect_token_spike,
-        run_strategy_engine
+        start_sentiment_engine,
+        start_smartlist_monitor,
+        start_token_monitor,
+        start_trading_engine
     ]
 
     for module in modules:
@@ -59,7 +55,7 @@ def filter_clean_alerts(alerts: List[Dict]) -> List[Dict]:
     seen_signatures = set()
 
     for alert in alerts:
-        key = alert.get("type", "") + alert.get("alert", "")
+        key = f"{alert.get('type','')}|{alert.get('symbol','')}|{alert.get('alert','')}"
         if key in seen_signatures:
             continue
         seen_signatures.add(key)
@@ -69,4 +65,5 @@ def filter_clean_alerts(alerts: List[Dict]) -> List[Dict]:
             final_alerts.append(alert)
 
     return final_alerts
+
 
