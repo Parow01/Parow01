@@ -1,15 +1,13 @@
 import os
 import logging
 from flask import Flask, request
-import pytz
+from zoneinfo import ZoneInfo  # ✅ Use this instead of pytz
 from apscheduler.schedulers.background import BackgroundScheduler
-
-scheduler = BackgroundScheduler(timezone=pytz.utc)  # ⬅️ force pytz timezone
 from dotenv import load_dotenv
-import pytz
 
 from keepalive import keep_alive
 from message_router.router import process_update
+
 # ✅ Engine Imports
 from whale_engine.whale_main import start_whale_engine
 from funding_rate_monitor.funding_main import start_funding_rate_monitor
@@ -52,11 +50,11 @@ def webhook():
         logging.error(f"❌ Error in webhook: {e}")
     return {"ok": True}
 
-# ✅ Scheduler Setup
-scheduler = BackgroundScheduler(timezone=pytz.UTC)
+# ✅ Scheduler Setup using zoneinfo
+scheduler = BackgroundScheduler(timezone=ZoneInfo("UTC"))
 scheduler.start()
 
-# ✅ Start All Engines Here (in background)
+# ✅ Start All Engines
 start_whale_engine(scheduler)
 start_funding_rate_monitor(scheduler)
 start_fomo_scanner(scheduler)
@@ -73,6 +71,7 @@ start_smartlist_monitor(scheduler)
 
 # ✅ Keep app alive on Render
 keep_alive(app)
+
 
 
 
