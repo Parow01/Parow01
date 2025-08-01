@@ -24,6 +24,16 @@ def detect_whale_sentiment():
         signal = fetch_whale_sentiment()
         if signal:
             return {
+                "status": True,
+                "message": signal.get("message", "🧠 Whale Sentiment Alert"),
+                "confidence": signal.get("confidence", "medium")
+            }
+        else:
+            return {"status": False}
+    except Exception as e:
+        logging.error(f"[Sentiment Engine] detect_whale_sentiment error: {e}")
+        return {"status": False}
+
 
 
 
