@@ -2,6 +2,7 @@
 
 import logging
 import os
+import pytz
 from keepalive import keep_alive
 from apscheduler.schedulers.background import BackgroundScheduler
 from telegram import Update
@@ -25,13 +26,14 @@ from alert_engine.alert_main import run_alert_engine
 # ✅ Logging Setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-# ✅ Scheduler
-scheduler = BackgroundScheduler()
+# ✅ Scheduler with pytz (to fix timezone error)
+scheduler = BackgroundScheduler(timezone=pytz.utc)
 
 # ✅ Telegram Setup
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
+# ✅ Telegram Bot Command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("✅ UmarAlertBot is online and running smoothly!")
 
@@ -40,7 +42,7 @@ app.add_handler(CommandHandler("start", start))
 # ✅ Safe Engine Startup Wrapper
 def safe_start(module_name, func):
     try:
-        func(scheduler)
+        func(scheduler)  # Always pass scheduler to avoid argument mismatch
         logging.info(f"✅ {module_name} started successfully.")
     except Exception as e:
         logging.error(f"❌ {module_name} failed to start: {e}")
@@ -64,6 +66,8 @@ safe_start("Alert Engine", run_alert_engine)  # 🔔 Master router
 scheduler.start()
 keep_alive()
 app.run_polling()
+
+
 
 
 
