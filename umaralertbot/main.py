@@ -8,7 +8,7 @@ from telegram.ext import Application, CommandHandler
 from keepalive import keep_alive
 from whale_screener.whale_main import start_whale_engine
 from fomo_scanner.fomo_main import start_fomo_scanner
-from liquidation_heatmap.liquidation_main import start_liquidation_heatmap
+from liquidation_heatmap.heatmap_main import start_liquidation_heatmap
 from funding_rate_monitor.funding_main import start_funding_monitor
 from confluence_engine.confluence_main import start_confluence_engine
 from exchange_reserve.reserve_main import start_reserve_monitor
