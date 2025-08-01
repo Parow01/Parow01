@@ -13,3 +13,9 @@ def start_whale_engine():
     scheduler = BackgroundScheduler()
     scheduler.add_job(fetch_and_process_whale_data, 'interval', minutes=5)
     scheduler.start()
+   # whale_screener/whale_main.py
+
+def start_whale_screener():
+    from whale_screener.whale_core import run_screener
+    run_screener()
+ 
