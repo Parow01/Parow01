@@ -1,21 +1,15 @@
 # ✅ umaralertbot/whale_screener/whale_main.py
 
-import logging
 from apscheduler.schedulers.background import BackgroundScheduler
-from whale_screener.whale_core import fetch_whale_alert
-from alert_engine.alert_dispatcher import dispatch_alert
+from whale_screener.whale_core import fetch_and_process_whale_data
+import logging
 
-def start_whale_engine(scheduler: BackgroundScheduler):
+def start_whale_engine():
     """
-    Schedules the Whale Screener to run every 5 minutes.
+    Initializes and starts the whale screener scheduler.
     """
-    scheduler.add_job(run_whale_screener, 'interval', minutes=5)
-    logging.info("✅ Whale Screener scheduled every 5 minutes")
+    logging.info("🔁 Starting Whale Screener Engine...")
 
-def run_whale_screener():
-    try:
-        signal = fetch_whale_alert()
-        if signal:
-            dispatch_alert(signal)
-    except Exception as e:
-        logging.error(f"[whale_screener] Error running screener: {e}")
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(fetch_and_process_whale_data, 'interval', minutes=5)
+    scheduler.start()
