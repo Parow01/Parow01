@@ -1,7 +1,6 @@
 # ✅ umaralertbot/confluence_engine/confluence_main.py
 
 import logging
-from apscheduler.schedulers.background import BackgroundScheduler
 from whale_screener.whale_core import detect_whale_activity
 from fomo_scanner.fomo_core import fetch_and_process_fomo_data
 from funding_rate_monitor.funding_core import analyze_funding_data
@@ -14,7 +13,7 @@ def check_confluence():
 
         whale_alert = detect_whale_activity()
         fomo_alert = fetch_and_process_fomo_data()
-        funding_alert = analyze_funding_rates()
+        funding_alert = analyze_funding_data()
         heatmap_alert = check_liquidation_clusters()
 
         bullish_signals = [
@@ -55,11 +54,15 @@ def check_confluence():
     except Exception as e:
         logging.error(f"❌ Error in confluence checker: {e}")
 
-def start_confluence_engine():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(check_confluence, "interval", minutes=4)
-    scheduler.start()
-    logging.info("✅ Confluence engine started.")
+def start_confluence_engine(scheduler):
+    scheduler.add_job(
+        check_confluence,
+        trigger="interval",
+        minutes=4,
+        id="confluence_engine_job",
+        replace_existing=True
+    )
+    logging.info("✅ Confluence engine job added to scheduler.")
 
 
 
