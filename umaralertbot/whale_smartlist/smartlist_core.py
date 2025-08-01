@@ -1,42 +1,49 @@
-# smartlist_core.py
-
-import requests
+import os
+import logging
+from dotenv import load_dotenv
 import time
+from utils.etherscan_helper import get_wallet_transactions
+from alert_engine.send_alert import send_telegram_alert
 
-SMART_WHALE_ADDRESSES = [
-    "0x28C6c06298d514Db089934071355E5743bf21d60",  # Binance 14
-    "0x564286362092D8e7936f0549571a803B203aAceD",  # Smart Money 1
-    "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0",  # Smart Money 2
-]
+load_dotenv()
+ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY")
 
-ETHERSCAN_API_KEY = "P42VPVV2CH2JGXZ4PYMVFR5X9YGKJQVI9"  # Your Etherscan API key
+# ✅ Known tagged addresses
+SMART_WHALE_ADDRESSES = {
+    "Binance 14": "0x28C6c06298d514Db089934071355E5743bf21d60",
+    "Smart Money 1": "0x564286362092D8e7936f0549571a803B203aAceD",
+    "Smart Money 2": "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0",
+}
 
-def fetch_smart_whale_activity():
+THRESHOLD_ETH = 100
+
+def check_smart_wallets():
     alerts = []
 
-    for address in SMART_WHALE_ADDRESSES:
-        url = f"https://api.etherscan.io/api?module=account&action=txlist&address={address}&sort=desc&apikey={ETHERSCAN_API_KEY}"
+    for label, address in SMART_WHALE_ADDRESSES.items():
         try:
-            response = requests.get(url)
-            data = response.json()
-            if data["status"] == "1":
-                latest_tx = data["result"][0]
-                value_eth = int(latest_tx["value"]) / 1e18
-                to_addr = latest_tx["to"]
-                from_addr = latest_tx["from"]
-                timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(latest_tx["timeStamp"])))
+            txs = get_wallet_transactions(address)
+            if not txs:
+                continue
 
+            latest = txs[0]
+            value_eth = int(latest["value"]) / 1e18
+            if value_eth >= THRESHOLD_ETH:
+                timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(latest["timeStamp"])))
                 alert = (
-                    f"🧠 Smart Whale Activity Detected\n"
-                    f"From: {from_addr}\n"
-                    f"To: {to_addr}\n"
-                    f"Value: {value_eth:.2f} ETH\n"
-                    f"Time: {timestamp}"
+                    f"🧠 <b>Smart Whale Activity Detected</b>\n"
+                    f"👤 <b>Wallet:</b> {label}\n"
+                    f"💸 <b>Value:</b> {value_eth:.2f} ETH\n"
+                    f"📤 <b>To:</b> {latest['to']}\n"
+                    f"🕒 <b>Time:</b> {timestamp}\n"
+                    f"🔗 <a href='https://etherscan.io/tx/{latest['hash']}'>View Tx</a>"
                 )
                 alerts.append(alert)
         except Exception as e:
-            print(f"[smartlist_core] Error fetching activity for {address}: {e}")
+            logging.error(f"[smartlist_core] Error fetching {label}: {e}")
 
-    return alerts
+    if alerts:
+        send_telegram_alert("\n\n".join(alerts))
+
 
 
