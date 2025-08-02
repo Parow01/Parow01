@@ -67,6 +67,11 @@ def detect_whale_activity():
     except Exception as e:
         logging.error(f"❌ detect_whale_activity failed: {e}")
         return {"status": False}
+def run_screener():
+  fetch_and_process_whale_data()
+
+     
+
 
 
 
