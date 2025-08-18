@@ -24,8 +24,9 @@ from alert_engine.alert_main import start_alert_engine   # ✅ fixed import
 # ✅ Logging Setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-# ✅ Scheduler with pytz (to fix timezone error)
-scheduler = BackgroundScheduler(timezone=pytz.UTC)
+# ✅ Force pytz timezone
+import pytz
+scheduler = BackgroundScheduler(timezone=pytz.timezone("UTC"))
 
 # ✅ Telegram Setup
 BOT_TOKEN = os.getenv("BOT_TOKEN")
