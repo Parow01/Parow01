@@ -1,5 +1,3 @@
-# ✅ umaralertbot/main.py
-
 import logging
 import os
 import pytz
@@ -21,13 +19,13 @@ from whale_sentiment.sentiment_main import start_sentiment_monitor
 from whale_smartlist.smartlist_main import start_smartlist_monitor
 from token_tracker.token_main import start_token_tracker
 from trading_strategy_engine.strategy_main import start_strategy_engine
-from alert_engine.alert_main import run_alert_engine
+from alert_engine.alert_main import start_alert_engine   # ✅ fixed import
 
 # ✅ Logging Setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 # ✅ Scheduler with pytz (to fix timezone error)
-scheduler = BackgroundScheduler(timezone=pytz.utc)
+scheduler = BackgroundScheduler(timezone=pytz.UTC)
 
 # ✅ Telegram Setup
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -42,7 +40,7 @@ app.add_handler(CommandHandler("start", start))
 # ✅ Safe Engine Startup Wrapper
 def safe_start(module_name, func):
     try:
-        func(scheduler)  # Always pass scheduler to avoid argument mismatch
+        func(scheduler)  # Always pass scheduler
         logging.info(f"✅ {module_name} started successfully.")
     except Exception as e:
         logging.error(f"❌ {module_name} failed to start: {e}")
@@ -60,20 +58,9 @@ safe_start("Whale Sentiment Monitor", start_sentiment_monitor)
 safe_start("Whale Smartlist Monitor", start_smartlist_monitor)
 safe_start("Token Tracker", start_token_tracker)
 safe_start("Trading Strategy Engine", start_strategy_engine)
-safe_start("Alert Engine", run_alert_engine)  # 🔔 Master router
+safe_start("Alert Engine", start_alert_engine)  # ✅ fixed
 
 # ✅ Start Everything
 scheduler.start()
 keep_alive()
 app.run_polling()
-
-
-
-
-
-
-
-
-
-
-
