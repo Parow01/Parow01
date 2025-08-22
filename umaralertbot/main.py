@@ -1,8 +1,8 @@
 import logging
 import os
-import pytz
 from keepalive import keep_alive
 from apscheduler.schedulers.background import BackgroundScheduler
+from zoneinfo import ZoneInfo
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
@@ -24,9 +24,8 @@ from alert_engine.alert_main import start_alert_engine   # ✅ fixed import
 # ✅ Logging Setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-# ✅ Force pytz timezone
-import pytz
-scheduler = BackgroundScheduler(timezone=pytz.timezone("UTC"))
+# ✅ Use zoneinfo (safe with APScheduler ≥3.11.0)
+scheduler = BackgroundScheduler(timezone=ZoneInfo("UTC"))
 
 # ✅ Telegram Setup
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -59,9 +58,10 @@ safe_start("Whale Sentiment Monitor", start_sentiment_monitor)
 safe_start("Whale Smartlist Monitor", start_smartlist_monitor)
 safe_start("Token Tracker", start_token_tracker)
 safe_start("Trading Strategy Engine", start_strategy_engine)
-safe_start("Alert Engine", start_alert_engine)  # ✅ fixed
+safe_start("Alert Engine", start_alert_engine)
 
 # ✅ Start Everything
 scheduler.start()
 keep_alive()
 app.run_polling()
+
