@@ -1,2 +1,1 @@
-web: python umaralertbot/main.py
-
+web: python main.py
