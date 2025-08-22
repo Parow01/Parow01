@@ -1,4 +1,3 @@
-# ✅ umaralertbot/whale_screener/whale_core.py
 
 import requests
 import logging
@@ -10,7 +9,8 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-def send_whale_alert(message):
+def send_whale_alert(message: str):
+    """Send a whale alert to Telegram."""
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {
@@ -25,10 +25,11 @@ def send_whale_alert(message):
         logging.error(f"❌ Failed to send whale alert: {e}")
 
 def fetch_and_process_whale_data():
+    """Fetch whale activity (placeholder now)."""
     try:
         logging.info("🐋 Whale screener running...")
 
-        # Placeholder — replace with real wallet detection from public tagged sources
+        # TODO: Replace with real whale wallet detection
         alert_msg = (
             "<b>🐋 Whale Screener Alert</b>\n\n"
             "💼 <b>Wallet:</b> 0xABC...123 (Smart Money)\n"
@@ -38,6 +39,7 @@ def fetch_and_process_whale_data():
             "🔎 <i>Wallet flagged as Smart Money — Watch further behavior.</i>"
         )
 
+        # Send Telegram alert
         send_whale_alert(alert_msg)
 
         return {
@@ -51,9 +53,7 @@ def fetch_and_process_whale_data():
         return None
 
 def detect_whale_activity():
-    """
-    Wrapper used by confluence_engine to check recent whale activity
-    """
+    """Wrapper used by confluence_engine to check recent whale activity."""
     try:
         result = fetch_and_process_whale_data()
         if result:
@@ -67,9 +67,10 @@ def detect_whale_activity():
     except Exception as e:
         logging.error(f"❌ detect_whale_activity failed: {e}")
         return {"status": False}
-def run_screener():
-  fetch_and_process_whale_data()
 
+def run_screener():
+    """Standalone runner for manual testing."""
+    return fetch_and_process_whale_data()
      
 
 
