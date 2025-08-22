@@ -18,6 +18,7 @@ def collect_all_alerts() -> List[Dict]:
     """
     raw_alerts = []
 
+    
     modules = [
         detect_whale_activity,
         check_fomo_signals,
@@ -27,13 +28,13 @@ def collect_all_alerts() -> List[Dict]:
         detect_netflow_reaction,
         detect_reserve_shift,
         detect_hotwallet_movement,
-        start_sentiment_engine,
+        start_sentiment_monitor,   # ✅ fixed
         start_smartlist_monitor,
-        start_token_monitor,
+        start_token_tracker,       # ✅ fixed
         detect_strategy_signal
     ]
 
-    for module in modules:
+ for module in modules:
         try:
             result = module()
             if result:
