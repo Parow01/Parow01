@@ -1,4 +1,5 @@
 from typing import List, Dict
+import logging
 
 from whale_screener.whale_core import detect_whale_activity
 from fomo_scanner.fomo_main import check_fomo_signals
@@ -12,13 +13,15 @@ from whale_sentiment.sentiment_main import start_sentiment_monitor
 from whale_smartlist.smartlist_main import start_smartlist_monitor
 from trading_strategy_engine.strategy_main import detect_strategy_signal
 
+# ⚠️ Add only if token_tracker exists, otherwise remove
+# from token_tracker.token_main import start_token_tracker
+
 def collect_all_alerts() -> List[Dict]:
     """
     Calls all active engines, filters unique and relevant alerts.
     """
     raw_alerts = []
 
-    
     modules = [
         detect_whale_activity,
         check_fomo_signals,
@@ -28,13 +31,13 @@ def collect_all_alerts() -> List[Dict]:
         detect_netflow_reaction,
         detect_reserve_shift,
         detect_hotwallet_movement,
-        start_sentiment_monitor,   # ✅ fixed
+        start_sentiment_monitor,
         start_smartlist_monitor,
-        start_token_tracker,       # ✅ fixed
-        detect_strategy_signal
+        # start_token_tracker,   # Uncomment if available
+        detect_strategy_signal,
     ]
 
- for module in modules:
+    for module in modules:
         try:
             result = module()
             if result:
@@ -43,9 +46,10 @@ def collect_all_alerts() -> List[Dict]:
                 else:
                     raw_alerts.append(result)
         except Exception as e:
-            print(f"[alert_engine] Error in {module.__name__}: {e}")
+            logging.error(f"[alert_engine] Error in {module.__name__}: {e}")
 
     return filter_clean_alerts(raw_alerts)
+
 
 def filter_clean_alerts(alerts: List[Dict]) -> List[Dict]:
     """
@@ -65,5 +69,6 @@ def filter_clean_alerts(alerts: List[Dict]) -> List[Dict]:
             final_alerts.append(alert)
 
     return final_alerts
+
 
 
