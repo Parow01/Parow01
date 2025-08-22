@@ -1,12 +1,11 @@
 import logging
 import os
-from keepalive import keep_alive
 from apscheduler.schedulers.background import BackgroundScheduler
 from zoneinfo import ZoneInfo
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# ✅ ENGINE IMPORTS
+# 🔹 ENGINE IMPORTS
 from whale_screener.whale_main import start_whale_screener
 from fomo_scanner.fomo_main import start_fomo_scanner
 from funding_rate_monitor.funding_main import start_funding_rate_monitor
@@ -19,33 +18,36 @@ from whale_sentiment.sentiment_main import start_sentiment_monitor
 from whale_smartlist.smartlist_main import start_smartlist_monitor
 from token_tracker.token_main import start_token_tracker
 from trading_strategy_engine.strategy_main import start_strategy_engine
-from alert_engine.alert_main import start_alert_engine   # ✅ fixed import
+from alert_engine.alert_main import start_alert_engine
 
 # ✅ Logging Setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-# ✅ Use zoneinfo (safe with APScheduler ≥3.11.0)
+# ✅ Scheduler
 scheduler = BackgroundScheduler(timezone=ZoneInfo("UTC"))
 
-# ✅ Telegram Setup
+# ✅ Environment Variables
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")  # Render provides this automatically
+
+# ✅ Build Telegram App
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-# ✅ Telegram Bot Command
+# ✅ Telegram Commands
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ UmarAlertBot is online and running smoothly!")
+    await update.message.reply_text("✅ UmarAlertBot is online via Webhook!")
 
 app.add_handler(CommandHandler("start", start))
 
-# ✅ Safe Engine Startup Wrapper
+# ✅ Safe Engine Starter
 def safe_start(module_name, func):
     try:
-        func(scheduler)  # Always pass scheduler
+        func(scheduler)
         logging.info(f"✅ {module_name} started successfully.")
     except Exception as e:
-        logging.error(f"❌ {module_name} failed to start: {e}")
+        logging.error(f"❌ {module_name} failed: {e}")
 
-# ✅ START ALL MODULES
+# ✅ Start all modules
 safe_start("Whale Screener", start_whale_screener)
 safe_start("FOMO Scanner", start_fomo_scanner)
 safe_start("Funding Rate Monitor", start_funding_rate_monitor)
@@ -60,8 +62,17 @@ safe_start("Token Tracker", start_token_tracker)
 safe_start("Trading Strategy Engine", start_strategy_engine)
 safe_start("Alert Engine", start_alert_engine)
 
-# ✅ Start Everything
+# ✅ Start Scheduler
 scheduler.start()
-keep_alive()
-app.run_polling()
 
+# ✅ Webhook Mode
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))  # Render sets PORT automatically
+    logging.info(f"🌍 Starting webhook on port {port} at {RENDER_URL}")
+
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path=BOT_TOKEN,
+        webhook_url=f"{RENDER_URL}/{BOT_TOKEN}"
+    )
